@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Application;
+namespace Web;
 
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
     'router' => [
         'routes' => [
-            'application' => [
-                'type'    => Segment::class,
+            'home' => [
+                'type'    => Literal::class,
                 'options' => [
-                    'route'    => '/application[/:action]',
+                    'route'    => '/',
                     'defaults' => [
                         'controller' => Controller\IndexController::class,
                         'action'     => 'index',
@@ -23,11 +22,13 @@ return [
             ],
         ],
     ],
+
     'controllers' => [
         'factories' => [
-            Controller\IndexController::class => InvokableFactory::class,
+            Controller\IndexController::class => \Laminas\ServiceManager\Factory\InvokableFactory::class,
         ],
     ],
+
     'view_manager' => [
         'display_not_found_reason' => true,
         'display_exceptions'       => true,
@@ -35,10 +36,9 @@ return [
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
         'template_map' => [
-            'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
-            'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
-            'error/404'               => __DIR__ . '/../view/error/404.phtml',
-            'error/index'             => __DIR__ . '/../view/error/index.phtml',
+            'web/layout/layout' => __DIR__ . '/../view/web/layout/layout.phtml',
+            'error/404'         => __DIR__ . '/../view/error/404.phtml',
+            'error/index'       => __DIR__ . '/../view/error/index.phtml',
         ],
         'template_path_stack' => [
             __DIR__ . '/../view',

@@ -1,78 +1,48 @@
+# Dockerfile para citrob_back — Deploy en Docploy
 FROM php:8.3-apache
 
-LABEL maintainer="getlaminas.org" \
-    org.label-schema.docker.dockerfile="/Dockerfile" \
-    org.label-schema.name="Laminas MVC Skeleton" \
-    org.label-schema.url="https://docs.getlaminas.org/mvc/" \
-    org.label-schema.vcs-url="https://github.com/laminas/laminas-mvc-skeleton"
+LABEL maintainer="CITROB" \
+    org.label-schema.name="CITROB Back - Laminas MVC"
 
-## Update package information
+# Actualizar paquetes
 RUN apt-get update
 
-## Configure Apache
-RUN a2enmod rewrite \
-    && sed -i 's!/var/www/html!/var/www/public!g' /etc/apache2/sites-available/000-default.conf \
-    && mv /var/www/html /var/www/public
+# Configurar Apache: public/ como document root
+RUN a2enmod rewrite headers \
+    && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-## Install Composer
-RUN curl -sS https://getcomposer.org/installer \
-  | php -- --install-dir=/usr/local/bin --filename=composer
+# Habilitar AllowOverride All para .htaccess
+RUN printf '<Directory /var/www/html/public>\n\tOptions Indexes FollowSymLinks\n\tAllowOverride All\n\tRequire all granted\n</Directory>\n' \
+    >> /etc/apache2/apache2.conf
 
-###
-## PHP Extensisons
-###
+# PHP Extensions necesarias
+RUN apt-get install --yes git zlib1g-dev libzip-dev libicu-dev \
+    && docker-php-ext-install zip intl pdo pdo_mysql
 
-## Install zip libraries and extension
-RUN apt-get install --yes git zlib1g-dev libzip-dev \
-    && docker-php-ext-install zip
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-## Install intl library and extension
-RUN apt-get install --yes libicu-dev \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install intl
+# Copiar código
+WORKDIR /var/www/html
+COPY . .
 
-###
-## Optional PHP extensions 
-###
+# Instalar dependencias de producción
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-## mbstring for i18n string support
-# RUN docker-php-ext-install mbstring
+# Permisos
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 /var/www/html/data
 
-###
-## Some laminas/laminas-db supported PDO extensions
-###
+# Variables de entorno por defecto (Coolify las sobreescribe)
+ENV DB_CONNECTION=mariadb
+ENV DB_HOST=citrob-citrobbd-dsqwav
+ENV DB_PORT=3306
+ENV DB_DATABASE=citrobbd
+ENV DB_USERNAME=user
+ENV DB_PASSWORD=admin@123
 
-## MySQL PDO support
-# RUN docker-php-ext-install pdo_mysql
+EXPOSE 80
 
-## PostgreSQL PDO support
-# RUN apt-get install --yes libpq-dev \
-#     && docker-php-ext-install pdo_pgsql
-
-###
-## laminas/laminas-cache supported extensions
-###
-
-## APCU
-# RUN pecl install apcu \
-#     && docker-php-ext-enable apcu
-
-## Memcached
-# RUN apt-get install --yes libmemcached-dev \
-#     && pecl install memcached \
-#     && docker-php-ext-enable memcached
-
-## MongoDB
-# RUN pecl install mongodb \
-#     && docker-php-ext-enable mongodb
-
-## Redis support.  igbinary and libzstd-dev are only needed based on 
-## redis pecl options
-# RUN pecl install igbinary \
-#     && docker-php-ext-enable igbinary \
-#     && apt-get install --yes libzstd-dev \
-#     && pecl install redis \
-#     && docker-php-ext-enable redis
-
-
-WORKDIR /var/www
+# Limpiar config cache y arrancar Apache
+CMD ["sh", "-c", "rm -f data/cache/module-config-cache.*.php && apache2-foreground"]

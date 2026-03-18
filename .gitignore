@@ -1,9 +1,34 @@
-/.phpcs-cache
-/.phpunit.cache
-/.psalm-cache
-vendor/
-config/development.config.php
-data/cache/*
-!data/cache/.gitkeep
-phpunit.xml
-composer.lock
+# Dependencias Composer
+/vendor/
+
+# Caché de configuración de Laminas
+/data/cache/*.php
+!/data/cache/.gitkeep
+
+# Config local con credenciales (NO subir al repo)
+/config/autoload/database.local.php
+/config/autoload/local.php
+/config/autoload/*.local.php
+!/config/autoload/*.local.php.dist
+
+# Logs
+/data/logs/
+
+# Laminas development mode
+/config/development.config.php
+/config/autoload/development.local.php
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales de migración
+migrate_export.sql
+fix_hash.php

@@ -1,0 +1,183 @@
+<?php
+$this->layout('web/layout/layout');
+?>
+<!-- NAVBAR -->
+<nav class="navbar navbar-light sticky-top bg-white" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/">
+      <img src="/citrob_back/public/imgs/logo.jpeg" alt="CITROB" onerror="this.style.background='#f27f0d'">
+      <span>CITROB</span>
+    </a>
+    <div class="d-none d-md-flex align-items-center gap-4">
+      <a href="#programas" class="text-decoration-none text-dark fw-500" style="font-size:14px;">Programas</a>
+      <a href="#logros" class="text-decoration-none text-dark fw-500" style="font-size:14px;">Logros</a>
+      <a href="#galeria" class="text-decoration-none text-dark fw-500" style="font-size:14px;">Galería</a>
+      <a href="#contacto" class="text-decoration-none text-dark fw-500" style="font-size:14px;">Contacto</a>
+      <a href="/shop" class="btn btn-primary-custom rounded-pill px-4" style="font-size:14px;">
+        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">store</span>
+        Tienda
+      </a>
+    </div>
+    <button class="navbar-toggler d-md-none border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- OFFCANVAS MOBILE -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title fw-bold">Menú</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column gap-3">
+    <a href="#programas" class="text-decoration-none text-dark fw-500" data-bs-dismiss="offcanvas">Programas</a>
+    <a href="#logros" class="text-decoration-none text-dark fw-500" data-bs-dismiss="offcanvas">Logros</a>
+    <a href="#galeria" class="text-decoration-none text-dark fw-500" data-bs-dismiss="offcanvas">Galería</a>
+    <a href="#contacto" class="text-decoration-none text-dark fw-500" data-bs-dismiss="offcanvas">Contacto</a>
+    <hr>
+    <a href="/shop" class="btn btn-primary-custom rounded-pill px-4">Tienda</a>
+    <a href="/admin/login" class="btn btn-outline-secondary rounded-pill px-4" style="font-size:14px;">Admin</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="container mt-4 mb-5">
+  <div class="hero-section" style="background-image:url('/citrob_back/public/imgs/hero.jpg')">
+    <div class="hero-overlay"></div>
+    <div class="position-relative p-4 p-md-5 text-white d-flex flex-column justify-content-end" style="min-height:480px;">
+      <span class="text-warning fw-600 mb-2 hero-fade" style="font-size:14px;letter-spacing:2px;">CITROB · QUINTERO, CHILE</span>
+      <h1 class="fw-900 hero-fade" style="font-size:clamp(2rem,5vw,3.5rem);line-height:1.1;">Escuela de<br><span style="color:var(--primary);">Robótica</span></h1>
+      <p class="text-white-50 hero-fade-delay" style="max-width:500px;font-size:1.05rem;">
+        Formamos ingenieros del futuro con programas de robótica, programación e impresión 3D.
+      </p>
+      <div class="d-flex gap-3 flex-wrap hero-fade-delay2">
+        <a href="#programas" class="btn btn-primary-custom rounded-pill px-5 py-3 fw-bold" style="font-size:1rem;">Explorar Programas</a>
+        <a href="#contacto" class="btn btn-outline-light rounded-pill px-4 py-3 fw-600" style="font-size:1rem;">Contáctanos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="container mb-5" id="stats">
+  <div class="row g-3">
+    <?php foreach ([['800','Estudiantes','school'],['6','Años','stars'],['28','Programas','laptop'],['95','Satisfacción %','thumb_up']] as [$n,$l,$i]): ?>
+    <div class="col-6 col-md-3">
+      <div class="stat-card p-4 text-center animate-on-scroll">
+        <span class="material-symbols-outlined text-primary-c mb-2" style="font-size:32px;"><?= $i ?></span>
+        <div class="stat-number" data-target="<?= $n ?>" data-suffix="<?= $l === 'Satisfacción %' ? '%' : '+' ?>"><?= $n . ($l === 'Satisfacción %' ? '%' : '+') ?></div>
+        <div class="text-muted" style="font-size:13px;"><?= $l ?></div>
+      </div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+</section>
+
+<!-- PROGRAMAS -->
+<section class="container mb-5" id="programas">
+  <div class="text-center mb-4 animate-on-scroll">
+    <span class="badge rounded-pill bg-primary-subtle text-primary-c px-3 py-2 mb-2">Programas</span>
+    <h2 class="fw-800" style="font-size:clamp(1.5rem,3vw,2.2rem);">Nuestros Cursos</h2>
+  </div>
+  <div class="row g-4">
+    <?php foreach ([
+      ['Robótica Básica','Para niños de 6-10 años. Fundamentos de programación y construcción.','Básico','imgs/rob.jpg',''],
+      ['Robótica Avanzada','Para adolescentes. Arduino, sensores y proyectos complejos.','Avanzado','imgs/ard.jpg','featured'],
+      ['Impresión 3D','Diseño CAD y fabricación digital desde cero.','Intermedio','imgs/3d.jpg',''],
+      ['Programación Web','HTML, CSS y JavaScript aplicados a proyectos reales.','Intermedio','imgs/web.jpg',''],
+    ] as [$title,$desc,$level,$img,$cls]): ?>
+    <div class="col-md-6 col-lg-3">
+      <div class="program-card <?= $cls ?> animate-on-scroll h-100">
+        <?php if ($cls === 'featured'): ?><div class="popular-ribbon">Popular</div><?php endif; ?>
+        <div class="card-img-wrap" style="height:160px;">
+          <img src="/citrob_back/public/<?= $img ?>" alt="<?= $title ?>" class="w-100 h-100" style="object-fit:cover;"
+               onerror="this.parentElement.style.background='linear-gradient(135deg,#f27f0d,#e85d22)';this.style.display='none'">
+        </div>
+        <div class="p-3">
+          <span class="badge bg-primary-subtle text-primary-c mb-2" style="font-size:11px;"><?= $level ?></span>
+          <h5 class="fw-700 mb-1" style="font-size:15px;"><?= $title ?></h5>
+          <p class="text-muted" style="font-size:13px;"><?= $desc ?></p>
+        </div>
+      </div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+</section>
+
+<!-- WHO / CTA -->
+<section class="py-5 mb-5" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);" id="logros">
+  <div class="container">
+    <div class="row g-4 align-items-center">
+      <div class="col-md-5 text-white animate-on-scroll">
+        <span class="badge rounded-pill px-3 py-2 mb-3" style="background:rgba(var(--primary-rgb),.2);color:var(--primary);">Por qué elegirnos</span>
+        <h2 class="fw-800 mb-3" style="font-size:clamp(1.5rem,3vw,2rem);">Innovación al servicio de la educación</h2>
+        <p class="text-white-50 mb-4">Combinamos tecnología de punta con pedagogía moderna para transformar la forma en que los jóvenes aprenden.</p>
+        <a href="#contacto" class="btn btn-primary-custom rounded-pill px-5 py-3 fw-bold">Inscríbete</a>
+      </div>
+      <div class="col-md-7">
+        <div class="row g-3">
+          <?php foreach ([['Instructores Certificados','school'],['Kits de Robótica','precision_manufacturing'],['Mentorías','support_agent'],['Certificados','verified']] as [$t,$i]): ?>
+          <div class="col-6 animate-on-scroll">
+            <div class="why-card">
+              <div class="why-icon mb-3"><span class="material-symbols-outlined"><?= $i ?></span></div>
+              <p class="text-white fw-600 mb-0"><?= $t ?></p>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="container mb-5" id="contacto">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="contact-form p-4 p-md-5 animate-on-scroll">
+        <div class="text-center mb-4">
+          <span class="badge rounded-pill bg-primary-subtle text-primary-c px-3 py-2 mb-2">Contacto</span>
+          <h2 class="fw-800">¿Tienes dudas?</h2>
+        </div>
+        <form>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-500" style="font-size:13px;">Nombre</label>
+              <input type="text" class="form-control" placeholder="Tu nombre">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-500" style="font-size:13px;">Email</label>
+              <input type="email" class="form-control" placeholder="tu@email.com">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-500" style="font-size:13px;">Programa de interés</label>
+              <select class="form-select">
+                <option>Robótica Básica</option>
+                <option>Robótica Avanzada</option>
+                <option>Impresión 3D</option>
+                <option>Programación Web</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-500" style="font-size:13px;">Mensaje</label>
+              <textarea class="form-control" rows="4" placeholder="¿En qué podemos ayudarte?"></textarea>
+            </div>
+            <div class="col-12 text-center">
+              <button type="submit" class="btn btn-primary-custom rounded-pill px-5 py-3 fw-bold">Enviar Mensaje</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer-section py-4">
+  <div class="container text-center text-white-50" style="font-size:13px;">
+    © <?= date('Y') ?> CITROB Robótica · Quintero, Chile ·
+    <a href="/shop" class="text-white-50 ms-2">Tienda</a>
+    <a href="/admin/login" class="text-white-50 ms-2">Admin</a>
+  </div>
+</footer>

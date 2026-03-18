@@ -1,12 +1,11 @@
 <?php
 
-/**
- * List of enabled modules for this application.
- *
- * This should be an array of module namespaces used in the application.
- */
+declare(strict_types=1);
+
 return [
-    'Laminas\Router',
-    'Laminas\Validator',
-    'Application',
+    'Laminas\\Router',
+    'Laminas\\Validator',
+    'Web',
+    'Store',
+    'StoreAdmin',
 ];

@@ -1,0 +1,78 @@
+<?php $this->layout('store-admin/layout/layout'); ?>
+<?php $this->activePage='orders'; $this->pageTitle='Pedidos'; ?>
+<?php $orders=$this->orders; $total=$this->total; $pages=$this->pages; $page=$this->page; $status=$this->status; $sc=$this->statusCounts; ?>
+
+<?php
+$statusLabels = ['pending'=>'Pendiente','processing'=>'Procesando','shipped'=>'Enviado','delivered'=>'Entregado','cancelled'=>'Cancelado'];
+$statusPills  = ['pending'=>'pill-warning','processing'=>'pill-primary','shipped'=>'pill-warning','delivered'=>'pill-success','cancelled'=>'pill-danger'];
+$statusColors = ['pending'=>'#f59e0b','processing'=>'var(--primary)','shipped'=>'#3b82f6','delivered'=>'#10b981','cancelled'=>'#ef4444'];
+?>
+
+<!-- Status filters -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a href="/admin/orders" class="btn btn-sm <?= !$status?'btn-store':'btn-outline-secondary' ?> rounded-pill px-3">Todos <span class="badge bg-white text-dark ms-1"><?= array_sum($sc) ?></span></a>
+  <?php foreach ($statusLabels as $key=>$label): ?>
+  <a href="?status=<?= $key ?>" class="btn btn-sm <?= $status===$key?'btn-store':'btn-outline-secondary' ?> rounded-pill px-3">
+    <?= $label ?> <span class="badge bg-white text-dark ms-1"><?= $sc[$key]??0 ?></span>
+  </a>
+  <?php endforeach; ?>
+</div>
+
+<!-- Orders table -->
+<?php if (empty($orders)): ?>
+<div class="text-center py-5 text-muted">
+  <span class="material-icons" style="font-size:48px;">receipt_long</span>
+  <p class="mt-2">No hay pedidos<?= $status?' con estado "'.$statusLabels[$status].'"':'' ?></p>
+</div>
+<?php else: ?>
+<div class="admin-table">
+  <table class="table mb-0">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Cliente</th>
+        <th class="d-none d-md-table-cell">Fecha</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php foreach ($orders as $o): ?>
+      <tr>
+        <td class="text-muted" style="font-size:13px;">#<?= $o['id'] ?></td>
+        <td>
+          <div class="fw-600" style="font-size:13px;"><?= htmlspecialchars($o['customer_name']??'Cliente',ENT_QUOTES) ?></div>
+          <div class="text-muted" style="font-size:12px;"><?= htmlspecialchars($o['customer_email']??'',ENT_QUOTES) ?></div>
+        </td>
+        <td class="d-none d-md-table-cell text-muted" style="font-size:13px;"><?= date('d/m/Y H:i', strtotime($o['created_at'])) ?></td>
+        <td class="fw-700" style="color:var(--primary);">$<?= number_format($o['total']??0,0,',','.') ?></td>
+        <td><span class="pill <?= $statusPills[$o['status']] ?>"><?= $statusLabels[$o['status']] ?></span></td>
+        <td>
+          <form method="POST" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
+            <select name="new_status" class="form-select form-select-sm" style="font-size:12px;width:130px;">
+              <?php foreach ($statusLabels as $k=>$l): ?>
+              <option value="<?= $k ?>" <?= $o['status']===$k?'selected':'' ?>><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+            <button type="submit" class="btn btn-sm btn-store rounded-pill px-3">OK</button>
+          </form>
+        </td>
+      </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+<?php if ($pages > 1): ?>
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    <?php for ($i=1;$i<=$pages;$i++): ?>
+    <li class="page-item <?= $i===$page?'active':'' ?>"><a class="page-link" href="?page=<?=$i?>&status=<?=$status?>"><?=$i?></a></li>
+    <?php endfor; ?>
+  </ul>
+</nav>
+<?php endif; ?>
+<?php endif; ?>

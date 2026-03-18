@@ -1,0 +1,90 @@
+<?php echo $this->doctype(); ?>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><?= isset($this->headTitle) ? $this->headTitle() : 'CITROB - Escuela de Robótica' ?></title>
+    <meta name="description" content="CITROB es una escuela de robótica ubicada en Quintero, Chile."/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        :root { --primary: #f27f0d; --primary-dark: #d96a00; --primary-rgb: 242,127,13; --bg-light: #f8f7f5; }
+        * { scroll-behavior: smooth; }
+        body { font-family: 'Lexend', sans-serif; background: var(--bg-light); }
+        .btn-primary-custom { background: var(--primary); color: #fff; border: none; font-weight: 700; transition: all .3s; }
+        .btn-primary-custom:hover { background: var(--primary-dark); color: #fff; transform: translateY(-1px); }
+        .btn-outline-primary-custom { border: 1.5px solid var(--primary); color: var(--primary); background: transparent; font-weight: 700; transition: all .3s; }
+        .btn-outline-primary-custom:hover { background: rgba(var(--primary-rgb),.08); color: var(--primary); }
+        .text-primary-c { color: var(--primary) !important; }
+        .bg-primary-c { background-color: var(--primary) !important; }
+        .bg-primary-subtle { background-color: rgba(var(--primary-rgb),.1) !important; }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        .animate-on-scroll { opacity:0; transform:translateY(40px); transition: all .8s cubic-bezier(.16,1,.3,1); }
+        .animate-on-scroll.visible { opacity:1; transform:translateY(0); }
+        .hero-fade { animation: fadeInUp 1s ease-out forwards; }
+        .hero-fade-delay { animation: fadeInUp 1s ease-out .3s forwards; opacity:0; }
+        .hero-fade-delay2 { animation: fadeInUp 1s ease-out .6s forwards; opacity:0; }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        .card-hover { transition: all .4s cubic-bezier(.16,1,.3,1); }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(var(--primary-rgb),.15); }
+        .navbar-brand img { height:40px; width:40px; object-fit:cover; border-radius:8px; }
+        .navbar { transition: box-shadow .3s; }
+        .navbar.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.08); }
+        .stat-card { background:#fff; border-radius:12px; border:1px solid #f1f1f1; transition: all .4s cubic-bezier(.16,1,.3,1); }
+        .stat-card:hover { transform:translateY(-4px); box-shadow:0 10px 40px rgba(var(--primary-rgb),.12); }
+        .stat-number { font-variant-numeric: tabular-nums; font-weight:900; color:var(--primary); }
+        .program-card { border-radius:12px; overflow:hidden; border:1px solid #e5e7eb; background:#fff; transition: all .4s cubic-bezier(.16,1,.3,1); }
+        .program-card:hover { transform:translateY(-8px); box-shadow:0 20px 60px rgba(var(--primary-rgb),.15); }
+        .program-card .card-img-wrap { overflow:hidden; position:relative; }
+        .program-card .card-img-wrap img { transition:transform .7s; }
+        .program-card:hover .card-img-wrap img { transform:scale(1.1); }
+        .popular-ribbon { position:absolute; right:-40px; top:20px; background:var(--primary); color:#fff; font-size:11px; font-weight:700; padding:4px 50px; transform:rotate(45deg); z-index:2; }
+        .program-card.featured { border:2px solid rgba(var(--primary-rgb),.3); box-shadow:0 4px 20px rgba(var(--primary-rgb),.08); }
+        .achievement-icon { width:48px; height:48px; border-radius:50%; background:rgba(var(--primary-rgb),.1); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .achievement-icon .material-symbols-outlined { color:var(--primary); font-size:24px; }
+        .why-card { background:rgba(255,255,255,.05); backdrop-filter:blur(8px); border-radius:12px; border:1px solid rgba(255,255,255,.1); padding:1.5rem; transition:all .3s; }
+        .why-card:hover { border-color:rgba(var(--primary-rgb),.5); background:rgba(255,255,255,.1); }
+        .why-icon { width:56px; height:56px; border-radius:16px; background:rgba(var(--primary-rgb),.2); display:flex; align-items:center; justify-content:center; }
+        .why-icon .material-symbols-outlined { color:var(--primary); font-size:30px; }
+        .hero-section { min-height:480px; background-size:cover; background-position:center; position:relative; border-radius:16px; overflow:hidden; }
+        .hero-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(15,23,42,.7),rgba(15,23,42,.6),rgba(15,23,42,.8)); }
+        .gallery-scroll::-webkit-scrollbar { display:none; }
+        .gallery-scroll { scrollbar-width:none; scroll-snap-type:x mandatory; }
+        .gallery-item { scroll-snap-align:center; min-width:280px; height:240px; background-size:cover; background-position:center; }
+        @media(min-width:768px){ .gallery-item { min-width:380px; } .hero-section { min-height:520px; } }
+        .contact-form { background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,.06); border:1px solid #f1f1f1; }
+        .contact-form .form-control, .contact-form .form-select { border-radius:8px; border:1px solid #e5e7eb; font-size:14px; padding:.625rem 1rem; }
+        .contact-form .form-control:focus, .contact-form .form-select:focus { box-shadow:0 0 0 3px rgba(var(--primary-rgb),.15); border-color:var(--primary); }
+        .footer-section { background:#0f172a; }
+        .footer-social { width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; transition:background .3s; }
+        .footer-social:hover { background:var(--primary); }
+        .offcanvas { max-width:300px; }
+    </style>
+</head>
+<body>
+    <?= $this->content ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        const nav = document.getElementById('mainNav');
+        if (nav) window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 10));
+        // Animate on scroll
+        const obs = new IntersectionObserver((entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: .1 });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => obs.observe(el));
+        // Stat counter
+        document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+            const target = +el.dataset.target;
+            let count = 0;
+            const step = Math.ceil(target / 60);
+            const timer = setInterval(() => { count = Math.min(count + step, target); el.textContent = count + (el.dataset.suffix || '+'); if (count >= target) clearInterval(timer); }, 25);
+        });
+        // Gallery scroll
+        function scrollGallery(dir) {
+            const g = document.getElementById('galleryContainer');
+            if (g) g.scrollBy({ left: dir * 380, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

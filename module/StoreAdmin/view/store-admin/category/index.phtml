@@ -1,0 +1,107 @@
+<?php $this->layout('store-admin/layout/layout'); ?>
+<?php $this->activePage='categories'; $this->pageTitle='Categorías'; ?>
+<?php $cats=$this->categories; ?>
+
+<div class="row g-4">
+  <!-- Category List -->
+  <div class="col-lg-8">
+    <div class="admin-table">
+      <div class="px-4 py-3 border-bottom d-flex align-items-center justify-content-between">
+        <h6 class="fw-700 mb-0">Categorías (<?= count($cats) ?>)</h6>
+      </div>
+      <table class="table mb-0">
+        <thead><tr><th>Nombre</th><th class="d-none d-md-table-cell">Slug</th><th>Productos</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <?php foreach ($cats as $c): ?>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="material-icons text-muted" style="font-size:18px;"><?= htmlspecialchars($c['icon']??'category',ENT_QUOTES) ?></span>
+                <span class="fw-600" style="font-size:13px;"><?= htmlspecialchars($c['name'],ENT_QUOTES) ?></span>
+              </div>
+            </td>
+            <td class="d-none d-md-table-cell text-muted" style="font-size:13px;"><?= htmlspecialchars($c['slug'],ENT_QUOTES) ?></td>
+            <td><span class="pill pill-primary"><?= (int)$c['product_count'] ?></span></td>
+            <td><span class="pill <?= $c['active']?'pill-success':'pill-danger' ?>"><?= $c['active']?'Activa':'Inactiva' ?></span></td>
+            <td>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="editCat(<?= htmlspecialchars(json_encode($c),ENT_QUOTES) ?>)">
+                  <span class="material-icons" style="font-size:14px;">edit</span>
+                </button>
+                <?php if ($c['id'] > 1 && $c['product_count'] == 0): ?>
+                <form method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar?')">
+                  <input type="hidden" name="_action" value="delete">
+                  <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                  <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                    <span class="material-icons" style="font-size:14px;">delete</span>
+                  </button>
+                </form>
+                <?php endif; ?>
+              </div>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add/Edit Form -->
+  <div class="col-lg-4">
+    <div class="bg-white rounded-3 border p-4">
+      <h6 class="fw-700 mb-3" id="formTitle">Nueva Categoría</h6>
+      <form method="POST">
+        <input type="hidden" name="_action" value="save">
+        <input type="hidden" name="id" id="catId" value="0">
+        <div class="mb-3">
+          <label class="form-label fw-500" style="font-size:13px;">Nombre *</label>
+          <input type="text" name="name" id="catName" class="form-control form-control-sm" required oninput="autoSlug()">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-500" style="font-size:13px;">Slug</label>
+          <input type="text" name="slug" id="catSlug" class="form-control form-control-sm">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-500" style="font-size:13px;">Ícono (Material Icons)</label>
+          <input type="text" name="icon" id="catIcon" class="form-control form-control-sm" placeholder="ej: memory">
+          <div class="mt-1 text-muted" style="font-size:11px;">Ver íconos: <a href="https://fonts.google.com/icons" target="_blank">fonts.google.com/icons</a></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-500" style="font-size:13px;">Orden</label>
+          <input type="number" name="sort_order" id="catOrder" class="form-control form-control-sm" value="0" min="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-500" style="font-size:13px;">Estado</label>
+          <select name="active" id="catActive" class="form-select form-select-sm">
+            <option value="1">Activa</option><option value="0">Inactiva</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-store rounded-pill w-100 fw-700">Guardar</button>
+        <button type="button" class="btn btn-outline-secondary rounded-pill w-100 mt-2" onclick="resetForm()">Limpiar</button>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+function autoSlug() {
+  const n = document.getElementById('catName').value;
+  document.getElementById('catSlug').value = n.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+function editCat(c) {
+  document.getElementById('formTitle').textContent = 'Editar: ' + c.name;
+  document.getElementById('catId').value = c.id;
+  document.getElementById('catName').value = c.name;
+  document.getElementById('catSlug').value = c.slug;
+  document.getElementById('catIcon').value = c.icon||'';
+  document.getElementById('catOrder').value = c.sort_order||0;
+  document.getElementById('catActive').value = c.active;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function resetForm() {
+  document.getElementById('formTitle').textContent = 'Nueva Categoría';
+  document.getElementById('catId').value = '0';
+  ['catName','catSlug','catIcon'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('catOrder').value = '0';
+  document.getElementById('catActive').value = '1';
+}
+</script>

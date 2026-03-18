@@ -1,0 +1,278 @@
+<?php $this->layout('store/layout/layout'); ?>
+<?php $products   = json_decode($this->products, true); ?>
+<?php $categories = json_decode($this->categories, true); ?>
+<?php
+// Helpers
+function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES | ENT_HTML5, 'UTF-8'); }
+function stars(float $r): string {
+    $out = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $out .= $i <= round($r)
+            ? '<span class="material-icons star-filled" style="font-size:14px;">star</span>'
+            : '<span class="material-icons star-empty" style="font-size:14px;">star</span>';
+    }
+    return $out;
+}
+$badgeColors = ['green'=>'#22c55e','blue'=>'#3b82f6','orange'=>'var(--primary)','red'=>'#ef4444','purple'=>'#8b5cf6'];
+?>
+<!-- Header -->
+<header class="bg-white border-bottom sticky-top" style="z-index:100;">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center justify-content-between py-3">
+      <!-- Brand -->
+      <div class="d-flex align-items-center gap-3">
+        <a href="/" class="text-decoration-none d-flex align-items-center gap-2">
+          <img src="/citrob_back/public/imgs/logo.jpeg" alt="C" style="width:36px;height:36px;border-radius:8px;object-fit:cover;" onerror="this.style.background='var(--primary)'">
+          <div>
+            <div class="fw-800" style="font-size:15px;line-height:1.1;">CITROB</div>
+            <div class="text-muted" style="font-size:10px;">Tienda</div>
+          </div>
+        </a>
+      </div>
+      <!-- Search (desktop) -->
+      <div class="d-none d-md-flex" style="max-width:360px;width:100%;">
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0"><span class="material-icons text-muted" style="font-size:18px;">search</span></span>
+          <input type="text" id="searchInput" class="form-control bg-light border-start-0" placeholder="Buscar productos...">
+        </div>
+      </div>
+      <!-- Actions -->
+      <div class="d-flex align-items-center gap-3">
+        <a href="/" class="text-muted text-decoration-none d-flex flex-column align-items-center">
+          <span class="material-icons" style="font-size:22px;">school</span>
+          <span style="font-size:10px;">Escuela</span>
+        </a>
+        <button onclick="toggleCart()" class="btn p-0 border-0 text-muted d-flex flex-column align-items-center position-relative">
+          <span class="material-icons" style="font-size:22px;">shopping_cart</span>
+          <span style="font-size:10px;">Carro</span>
+          <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none" style="background:var(--primary);font-size:10px;">0</span>
+        </button>
+        <a href="/admin/login" class="text-muted text-decoration-none d-flex flex-column align-items-center">
+          <span class="material-icons" style="font-size:22px;">admin_panel_settings</span>
+          <span style="font-size:10px;">Admin</span>
+        </a>
+      </div>
+    </div>
+    <!-- Search (mobile) -->
+    <div class="d-md-none pb-2">
+      <div class="input-group">
+        <span class="input-group-text bg-light border-end-0"><span class="material-icons text-muted" style="font-size:18px;">search</span></span>
+        <input type="text" id="searchInputMobile" class="form-control bg-light border-start-0" placeholder="Buscar productos...">
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container-fluid px-4 mt-4 flex-grow-1">
+  <div class="row g-4">
+    <!-- Sidebar categorías -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="sidebar-card p-3">
+        <p class="fw-700 mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#374151;">Categorías</p>
+        <ul class="list-unstyled mb-4" id="catList">
+          <?php foreach ($categories as $cat): ?>
+          <li>
+            <a href="#" class="cat-link <?= $cat['slug']==='todos'?'active':'' ?>" data-cat="<?= esc($cat['slug']) ?>">
+              <?= esc($cat['name']) ?>
+              <span class="cat-count"><?= (int)$cat['count'] ?></span>
+            </a>
+          </li>
+          <?php endforeach; ?>
+        </ul>
+
+        <p class="fw-700 mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#374151;">Precio</p>
+        <div class="mb-3">
+          <input type="range" id="maxPrice" class="w-100" min="0" max="500000" step="5000" value="500000">
+          <div class="d-flex justify-content-between" style="font-size:12px;color:#6b7280;">
+            <span>$0</span><span id="maxPriceLabel">$500.000</span>
+          </div>
+        </div>
+
+        <p class="fw-700 mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#374151;">Ordenar</p>
+        <select id="sortSelect" class="form-select form-select-sm">
+          <option value="default">Por defecto</option>
+          <option value="price_asc">Menor precio</option>
+          <option value="price_desc">Mayor precio</option>
+          <option value="name">A-Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Productos -->
+    <div class="col-lg-9">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div id="resultsInfo" style="font-size:14px;color:#6b7280;">Cargando...</div>
+        <!-- Mobile filters -->
+        <div class="d-lg-none d-flex gap-2">
+          <select id="catSelectMobile" class="form-select form-select-sm" style="width:auto;font-size:13px;">
+            <?php foreach ($categories as $cat): ?>
+            <option value="<?= esc($cat['slug']) ?>"><?= esc($cat['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <select id="sortSelectMobile" class="form-select form-select-sm" style="width:auto;font-size:13px;">
+            <option value="default">Ordenar</option>
+            <option value="price_asc">Menor precio</option>
+            <option value="price_desc">Mayor precio</option>
+            <option value="name">A-Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="productsGrid" class="row g-3">
+        <!-- Products rendered by JS -->
+      </div>
+
+      <div id="noResults" class="text-center py-5 d-none">
+        <span class="material-icons text-muted" style="font-size:48px;">search_off</span>
+        <p class="text-muted mt-2">No se encontraron productos</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cart sidebar -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="d-flex align-items-center justify-content-between p-4 border-bottom">
+    <h5 class="fw-700 mb-0">Carrito <span id="cartCount" class="text-muted" style="font-size:14px;">(0)</span></h5>
+    <button class="btn btn-sm border-0" onclick="toggleCart()"><span class="material-icons">close</span></button>
+  </div>
+  <div id="cartItems" class="p-3 overflow-auto" style="height:calc(100% - 200px);"></div>
+  <div class="p-4 border-top">
+    <div class="d-flex justify-content-between fw-700 mb-3">
+      <span>Total</span>
+      <span id="cartTotal" style="color:var(--primary);">$0</span>
+    </div>
+    <button class="btn btn-store w-100 rounded-pill py-3 fw-700" onclick="checkout()">
+      <span class="material-icons" style="font-size:18px;vertical-align:-3px;">payment</span> Ir al Pago
+    </button>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-white border-top mt-5 py-4 text-center text-muted" style="font-size:13px;">
+  © <?= date('Y') ?> CITROB Robótica · <a href="/" class="text-muted">Inicio</a> · <a href="/admin/login" class="text-muted">Admin</a>
+</footer>
+
+<script>
+// Data from PHP
+const ALL_PRODUCTS = <?= $this->products ?>;
+const ALL_CATEGORIES = <?= $this->categories ?>;
+
+// State
+let cart = JSON.parse(localStorage.getItem('citrob_cart') || '[]');
+let activeCategory = 'todos';
+let maxPrice = 500000;
+let sortMode = 'default';
+let searchQuery = '';
+
+// Cart
+function toggleCart() {
+  document.getElementById('cartSidebar').classList.toggle('open');
+  document.getElementById('cartOverlay').classList.toggle('open');
+}
+
+function addToCart(id, name, price, img) {
+  const existing = cart.find(i => i.id === id);
+  if (existing) existing.qty++;
+  else cart.push({ id, name, price, img, qty: 1 });
+  saveCart(); renderCart(); updateBadge();
+  const badge = document.querySelector(`[data-cart-id="${id}"]`);
+  if (badge) { badge.textContent = 'En el carro ✓'; badge.disabled = true; setTimeout(() => { badge.textContent = 'Agregar'; badge.disabled = false; }, 1500); }
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  saveCart(); renderCart(); updateBadge();
+}
+
+function saveCart() { localStorage.setItem('citrob_cart', JSON.stringify(cart)); }
+
+function updateBadge() {
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badges = document.querySelectorAll('#cartBadge');
+  badges.forEach(b => { b.textContent = total; b.classList.toggle('d-none', total === 0); });
+}
+
+function renderCart() {
+  const container = document.getElementById('cartItems');
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById('cartCount').textContent = `(${cart.reduce((s,i)=>s+i.qty,0)})`;
+  document.getElementById('cartTotal').textContent = '$' + total.toLocaleString('es-CL');
+  if (!cart.length) { container.innerHTML = '<div class="text-center text-muted py-5"><span class="material-icons" style="font-size:48px;">shopping_bag</span><p class="mt-2">Carrito vacío</p></div>'; return; }
+  container.innerHTML = cart.map(item => `
+    <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-2" style="border:1px solid #f1f1f1;">
+      <img src="${item.img || ''}" alt="" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#f9f9f9;" onerror="this.src=''">
+      <div class="flex-grow-1">
+        <div style="font-size:13px;font-weight:600;">${item.name}</div>
+        <div style="font-size:13px;color:var(--primary);">$${(item.price * item.qty).toLocaleString('es-CL')}</div>
+        <div style="font-size:12px;color:#9ca3af;">x${item.qty} unidades</div>
+      </div>
+      <button class="btn btn-sm border-0 text-danger" onclick="removeFromCart(${item.id})"><span class="material-icons" style="font-size:18px;">delete</span></button>
+    </div>`).join('');
+}
+
+function checkout() { alert('Funcionalidad de pago próximamente.'); }
+
+// Render products
+function renderProducts() {
+  let items = [...ALL_PRODUCTS];
+  if (activeCategory !== 'todos') items = items.filter(p => p.category === activeCategory);
+  if (searchQuery) items = items.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.description||'').toLowerCase().includes(searchQuery.toLowerCase()));
+  items = items.filter(p => +p.price <= maxPrice);
+  if (sortMode === 'price_asc') items.sort((a,b) => +a.price - +b.price);
+  else if (sortMode === 'price_desc') items.sort((a,b) => +b.price - +a.price);
+  else if (sortMode === 'name') items.sort((a,b) => a.name.localeCompare(b.name));
+
+  document.getElementById('resultsInfo').textContent = `${items.length} productos`;
+  document.getElementById('noResults').classList.toggle('d-none', items.length > 0);
+  document.getElementById('productsGrid').innerHTML = items.map(p => {
+    const badge = p.badge ? `<span class="product-badge" style="background:rgba(0,0,0,.08); color:#374151;">${p.badge}</span>` : '';
+    const stars = Array.from({length:5},(_,i) => `<span class="material-icons" style="font-size:13px;color:${i<Math.round(+p.rating)?'#facc15':'#e5e7eb'};">star</span>`).join('');
+    return `<div class="col-6 col-md-4 col-xl-3 fade-in">
+      <div class="product-card h-100 position-relative">
+        ${badge}
+        <img src="${p.image_url||''}" class="card-img-top" alt="${p.name}" style="height:160px;padding:1rem;object-fit:contain;background:#fafafa;" onerror="this.src='';this.style.background='linear-gradient(135deg,#f8f8f8,#eee)'">
+        <div class="p-3">
+          <p class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">${p.type||''}</p>
+          <h6 class="fw-700 line-clamp-2 mb-2">${p.name}</h6>
+          <div class="d-flex align-items-center gap-1 mb-2">${stars}<span style="font-size:12px;color:#9ca3af;">(${p.reviews||0})</span></div>
+          <div class="d-flex align-items-center justify-content-between mt-2">
+            <span class="fw-800" style="font-size:1rem;color:var(--primary);">$${(+p.price).toLocaleString('es-CL')}</span>
+            <button class="btn btn-sm btn-store rounded-pill px-3" style="font-size:12px;" data-cart-id="${p.id}" onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\'")}',${p.price},'${p.image_url||''}')">Agregar</button>
+          </div>
+          <div class="mt-1" style="font-size:11px;color:#9ca3af;">Stock: ${p.stock||0}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Events
+document.querySelectorAll('.cat-link').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault(); activeCategory = a.dataset.cat;
+  document.querySelectorAll('.cat-link').forEach(x => x.classList.toggle('active', x.dataset.cat === activeCategory));
+  renderProducts();
+}));
+
+const priceSlider = document.getElementById('maxPrice');
+if (priceSlider) priceSlider.addEventListener('input', () => {
+  maxPrice = +priceSlider.value;
+  document.getElementById('maxPriceLabel').textContent = '$' + maxPrice.toLocaleString('es-CL');
+  renderProducts();
+});
+
+document.getElementById('sortSelect')?.addEventListener('change', e => { sortMode = e.target.value; renderProducts(); });
+document.getElementById('sortSelectMobile')?.addEventListener('change', e => { sortMode = e.target.value; renderProducts(); });
+document.getElementById('catSelectMobile')?.addEventListener('change', e => { activeCategory = e.target.value; renderProducts(); });
+
+let searchTimer;
+function handleSearch(val) { clearTimeout(searchTimer); searchTimer = setTimeout(() => { searchQuery = val; renderProducts(); }, 300); }
+document.getElementById('searchInput')?.addEventListener('input', e => handleSearch(e.target.value));
+document.getElementById('searchInputMobile')?.addEventListener('input', e => handleSearch(e.target.value));
+
+// Init
+renderProducts();
+renderCart();
+updateBadge();
+</script>
