@@ -1,6 +1,9 @@
 # Dependencias Composer
 /vendor/
 
+# Imágenes de productos (se generan en el servidor, no van al repo)
+/public/img/products/
+
 # Caché de configuración de Laminas
 /data/cache/*.php
 !/data/cache/.gitkeep

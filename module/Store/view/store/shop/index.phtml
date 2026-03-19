@@ -2,277 +2,355 @@
 <?php $products   = json_decode($this->products, true); ?>
 <?php $categories = json_decode($this->categories, true); ?>
 <?php
-// Helpers
 function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES | ENT_HTML5, 'UTF-8'); }
-function stars(float $r): string {
-    $out = '';
-    for ($i = 1; $i <= 5; $i++) {
-        $out .= $i <= round($r)
-            ? '<span class="material-icons star-filled" style="font-size:14px;">star</span>'
-            : '<span class="material-icons star-empty" style="font-size:14px;">star</span>';
-    }
-    return $out;
-}
-$badgeColors = ['green'=>'#22c55e','blue'=>'#3b82f6','orange'=>'var(--primary)','red'=>'#ef4444','purple'=>'#8b5cf6'];
+$catIcons = [
+    'todos'            => 'apps',
+    'microcontroladores'=> 'memory',
+    'sensores'         => 'sensors',
+    'motores'          => 'precision_manufacturing',
+    'componentes'      => 'settings_input_component',
+    'alimentacion'     => 'power',
+    'displays'         => 'tv',
+];
 ?>
-<!-- Header -->
-<header class="bg-white border-bottom sticky-top" style="z-index:100;">
-  <div class="container-fluid px-4">
-    <div class="d-flex align-items-center justify-content-between py-3">
-      <!-- Brand -->
-      <div class="d-flex align-items-center gap-3">
-        <a href="/" class="text-decoration-none d-flex align-items-center gap-2">
-          <img src="/citrob_back/public/imgs/logo.jpeg" alt="C" style="width:36px;height:36px;border-radius:8px;object-fit:cover;" onerror="this.style.background='var(--primary)'">
-          <div>
-            <div class="fw-800" style="font-size:15px;line-height:1.1;">CITROB</div>
-            <div class="text-muted" style="font-size:10px;">Tienda</div>
-          </div>
-        </a>
-      </div>
-      <!-- Search (desktop) -->
-      <div class="d-none d-md-flex" style="max-width:360px;width:100%;">
-        <div class="input-group">
-          <span class="input-group-text bg-light border-end-0"><span class="material-icons text-muted" style="font-size:18px;">search</span></span>
-          <input type="text" id="searchInput" class="form-control bg-light border-start-0" placeholder="Buscar productos...">
+
+<!-- Header — idéntico al shop.html original -->
+<header class="bg-white border-bottom sticky-top" style="z-index:1040;">
+    <div class="container-xl">
+        <div class="d-flex justify-content-between align-items-center py-3">
+            <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
+                <img alt="CITROB Logo" src="/imgs/logo.jpeg" style="height:40px;width:40px;border-radius:8px;object-fit:cover;" onerror="this.style.background='#E85D22'">
+                <span class="fs-5 fw-bold"><span class="text-store">CITROB</span> <span class="text-secondary fw-medium">Shop</span></span>
+            </a>
+            <div class="flex-grow-1 mx-4 d-none d-md-block" style="max-width:600px;">
+                <div class="position-relative">
+                    <span class="material-icons position-absolute text-muted" style="top:50%;left:12px;transform:translateY(-50%);">search</span>
+                    <input id="searchInput" onkeyup="filterProducts()" class="form-control ps-5" placeholder="Buscar piezas, sensores, motores..." type="text" style="border-radius:8px; background:var(--bg-light); border:1px solid var(--border-c);"/>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-4">
+                <a class="text-muted text-decoration-none d-flex flex-column align-items-center" href="/">
+                    <span class="material-icons" style="font-size:22px;">school</span>
+                    <span style="font-size:10px;" class="mt-1 fw-medium">Escuela</span>
+                </a>
+                <button onclick="toggleCart()" class="btn p-0 border-0 text-muted d-flex flex-column align-items-center position-relative">
+                    <span class="material-icons" style="font-size:22px;">shopping_cart</span>
+                    <span style="font-size:10px;" class="mt-1 fw-medium">Carro</span>
+                    <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none" style="background:var(--primary); font-size:10px;">0</span>
+                </button>
+                <a href="/admin/login" class="text-muted text-decoration-none d-flex flex-column align-items-center" title="Panel de Administración">
+                    <span class="material-icons" style="font-size:22px;">admin_panel_settings</span>
+                    <span style="font-size:10px;" class="mt-1 fw-medium">Admin</span>
+                </a>
+            </div>
         </div>
-      </div>
-      <!-- Actions -->
-      <div class="d-flex align-items-center gap-3">
-        <a href="/" class="text-muted text-decoration-none d-flex flex-column align-items-center">
-          <span class="material-icons" style="font-size:22px;">school</span>
-          <span style="font-size:10px;">Escuela</span>
-        </a>
-        <button onclick="toggleCart()" class="btn p-0 border-0 text-muted d-flex flex-column align-items-center position-relative">
-          <span class="material-icons" style="font-size:22px;">shopping_cart</span>
-          <span style="font-size:10px;">Carro</span>
-          <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none" style="background:var(--primary);font-size:10px;">0</span>
-        </button>
-        <a href="/admin/login" class="text-muted text-decoration-none d-flex flex-column align-items-center">
-          <span class="material-icons" style="font-size:22px;">admin_panel_settings</span>
-          <span style="font-size:10px;">Admin</span>
-        </a>
-      </div>
+        <!-- Mobile search -->
+        <div class="d-md-none pb-3">
+            <div class="position-relative">
+                <span class="material-icons position-absolute text-muted" style="top:50%;left:12px;transform:translateY(-50%);font-size:18px;">search</span>
+                <input onkeyup="filterProducts()" class="form-control form-control-sm ps-5" placeholder="Buscar productos..." type="text" style="border-radius:8px; background:var(--bg-light);"/>
+            </div>
+        </div>
     </div>
-    <!-- Search (mobile) -->
-    <div class="d-md-none pb-2">
-      <div class="input-group">
-        <span class="input-group-text bg-light border-end-0"><span class="material-icons text-muted" style="font-size:18px;">search</span></span>
-        <input type="text" id="searchInputMobile" class="form-control bg-light border-start-0" placeholder="Buscar productos...">
-      </div>
-    </div>
-  </div>
 </header>
 
-<div class="container-fluid px-4 mt-4 flex-grow-1">
-  <div class="row g-4">
-    <!-- Sidebar categorías -->
-    <div class="col-lg-3 d-none d-lg-block">
-      <div class="sidebar-card p-3">
-        <p class="fw-700 mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#374151;">Categorías</p>
-        <ul class="list-unstyled mb-4" id="catList">
-          <?php foreach ($categories as $cat): ?>
-          <li>
-            <a href="#" class="cat-link <?= $cat['slug']==='todos'?'active':'' ?>" data-cat="<?= esc($cat['slug']) ?>">
-              <?= esc($cat['name']) ?>
-              <span class="cat-count"><?= (int)$cat['count'] ?></span>
-            </a>
-          </li>
-          <?php endforeach; ?>
-        </ul>
+<main class="flex-grow-1">
+    <div class="container-xl py-4">
+        <div class="row g-4">
 
-        <p class="fw-700 mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#374151;">Precio</p>
-        <div class="mb-3">
-          <input type="range" id="maxPrice" class="w-100" min="0" max="500000" step="5000" value="500000">
-          <div class="d-flex justify-content-between" style="font-size:12px;color:#6b7280;">
-            <span>$0</span><span id="maxPriceLabel">$500.000</span>
-          </div>
+            <!-- Mobile filter button -->
+            <div class="col-12 d-md-none">
+                <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 rounded-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
+                    <span class="material-icons" style="font-size:18px;">tune</span> Filtros y Categorías
+                </button>
+            </div>
+
+            <!-- Filter Offcanvas (mobile) -->
+            <div class="offcanvas offcanvas-start" style="max-width:300px;" tabindex="-1" id="filterOffcanvas" aria-labelledby="filterLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title fw-bold" id="filterLabel">Filtros</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <h6 class="fw-bold mb-3">Categorías</h6>
+                    <ul class="list-unstyled mb-4" id="mobileCategoryList"></ul>
+                    <h6 class="fw-bold mb-3">Rango de Precio</h6>
+                    <div class="d-flex justify-content-between text-muted small mb-2"><span>$0</span><span>$100.000+</span></div>
+                    <input type="range" class="form-range" min="0" max="100000" value="100000" oninput="filterByPrice(this.value)"/>
+                    <p id="mobilePriceLabel" class="text-store small fw-medium mt-2">Hasta: $100.000</p>
+                    <button class="btn btn-store w-100 mt-3" data-bs-dismiss="offcanvas">Aplicar Filtros</button>
+                </div>
+            </div>
+
+            <!-- Sidebar (desktop) -->
+            <div class="col-md-3 d-none d-md-block">
+                <div class="sidebar-card p-4">
+                    <h6 class="fw-bold mb-3 pb-2 border-bottom">Categorías</h6>
+                    <ul class="list-unstyled mb-0" id="categoryList"></ul>
+                    <h6 class="fw-bold mt-4 mb-3 pb-2 border-bottom">Rango de Precio</h6>
+                    <div class="d-flex justify-content-between text-muted small mb-2"><span>$0</span><span>$100.000+</span></div>
+                    <input type="range" class="form-range" min="0" max="100000" value="100000" oninput="filterByPrice(this.value)"/>
+                    <p id="priceLabel" class="text-store small fw-medium mt-2">Hasta: $100.000</p>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="col-md-9">
+                <div class="bg-white rounded-3 border p-3 mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                    <div>
+                        <h1 id="categoryTitle" class="fs-5 fw-bold mb-0">Todos los Productos</h1>
+                        <p id="productCount" class="text-muted small mb-0"></p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="text-muted small text-nowrap" for="sort">Ordenar:</label>
+                        <select onchange="sortProducts(this.value)" class="form-select form-select-sm" style="width:auto;border-radius:8px;" id="sort">
+                            <option value="recommended">Recomendados</option>
+                            <option value="price-asc">Precio: Menor a Mayor</option>
+                            <option value="price-desc">Precio: Mayor a Menor</option>
+                            <option value="name">Nombre A-Z</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="productGrid" class="row g-3 g-lg-4"></div>
+                <div id="emptyState" class="text-center py-5 d-none">
+                    <span class="material-icons text-muted" style="font-size:64px;">inventory_2</span>
+                    <h4 class="text-muted mt-3">No se encontraron productos</h4>
+                    <p class="text-muted">Intenta con otra búsqueda o categoría</p>
+                </div>
+            </div>
         </div>
-
-        <p class="fw-700 mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#374151;">Ordenar</p>
-        <select id="sortSelect" class="form-select form-select-sm">
-          <option value="default">Por defecto</option>
-          <option value="price_asc">Menor precio</option>
-          <option value="price_desc">Mayor precio</option>
-          <option value="name">A-Z</option>
-        </select>
-      </div>
     </div>
+</main>
 
-    <!-- Productos -->
-    <div class="col-lg-9">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div id="resultsInfo" style="font-size:14px;color:#6b7280;">Cargando...</div>
-        <!-- Mobile filters -->
-        <div class="d-lg-none d-flex gap-2">
-          <select id="catSelectMobile" class="form-select form-select-sm" style="width:auto;font-size:13px;">
-            <?php foreach ($categories as $cat): ?>
-            <option value="<?= esc($cat['slug']) ?>"><?= esc($cat['name']) ?></option>
-            <?php endforeach; ?>
-          </select>
-          <select id="sortSelectMobile" class="form-select form-select-sm" style="width:auto;font-size:13px;">
-            <option value="default">Ordenar</option>
-            <option value="price_asc">Menor precio</option>
-            <option value="price_desc">Mayor precio</option>
-            <option value="name">A-Z</option>
-          </select>
+<!-- Cart Overlay -->
+<div id="cartOverlay" class="cart-overlay" onclick="toggleCart()"></div>
+
+<!-- Cart Sidebar -->
+<div id="cartSidebar" class="cart-sidebar d-flex flex-column">
+    <div class="d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
+        <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+            <span class="material-icons text-store">shopping_cart</span> Carrito de Compras
+        </h5>
+        <button onclick="toggleCart()" class="btn btn-sm btn-light rounded-3"><span class="material-icons">close</span></button>
+    </div>
+    <div id="cartItems" class="flex-grow-1 overflow-auto p-4">
+        <div class="text-center py-5">
+            <span class="material-icons text-muted" style="font-size:48px;">remove_shopping_cart</span>
+            <p class="text-muted fw-medium mt-2">Tu carrito está vacío</p>
+            <p class="text-muted small">Agrega algunos productos para comenzar</p>
         </div>
-      </div>
-
-      <div id="productsGrid" class="row g-3">
-        <!-- Products rendered by JS -->
-      </div>
-
-      <div id="noResults" class="text-center py-5 d-none">
-        <span class="material-icons text-muted" style="font-size:48px;">search_off</span>
-        <p class="text-muted mt-2">No se encontraron productos</p>
-      </div>
     </div>
-  </div>
-</div>
-
-<!-- Cart sidebar -->
-<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
-<div class="cart-sidebar" id="cartSidebar">
-  <div class="d-flex align-items-center justify-content-between p-4 border-bottom">
-    <h5 class="fw-700 mb-0">Carrito <span id="cartCount" class="text-muted" style="font-size:14px;">(0)</span></h5>
-    <button class="btn btn-sm border-0" onclick="toggleCart()"><span class="material-icons">close</span></button>
-  </div>
-  <div id="cartItems" class="p-3 overflow-auto" style="height:calc(100% - 200px);"></div>
-  <div class="p-4 border-top">
-    <div class="d-flex justify-content-between fw-700 mb-3">
-      <span>Total</span>
-      <span id="cartTotal" style="color:var(--primary);">$0</span>
+    <div id="cartFooter" class="border-top p-4 d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-bold fs-5">Total:</span>
+            <span id="cartTotal" class="fw-bold fs-4 text-store">$0</span>
+        </div>
+        <button class="btn btn-store w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+            <span class="material-icons" style="font-size:16px;">lock</span> Proceder al Pago
+        </button>
+        <p class="text-center text-muted small mt-2">Envío a todo Chile 🇨🇱</p>
     </div>
-    <button class="btn btn-store w-100 rounded-pill py-3 fw-700" onclick="checkout()">
-      <span class="material-icons" style="font-size:18px;vertical-align:-3px;">payment</span> Ir al Pago
-    </button>
-  </div>
 </div>
 
 <!-- Footer -->
-<footer class="bg-white border-top mt-5 py-4 text-center text-muted" style="font-size:13px;">
-  © <?= date('Y') ?> CITROB Robótica · <a href="/" class="text-muted">Inicio</a> · <a href="/admin/login" class="text-muted">Admin</a>
+<footer class="bg-white border-top mt-auto">
+    <div class="container-xl py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <img alt="CITROB" src="/imgs/logo.jpeg" style="height:32px;width:32px;border-radius:8px;object-fit:cover;opacity:.8;">
+                <span class="fw-semibold">CITROB Robótica</span>
+            </div>
+            <div class="text-muted small text-center text-md-end">© <?= date('Y') ?> CITROB. Todos los derechos reservados. Componentes de robótica para educación y makers.</div>
+        </div>
+    </div>
 </footer>
 
 <script>
-// Data from PHP
-const ALL_PRODUCTS = <?= $this->products ?>;
-const ALL_CATEGORIES = <?= $this->categories ?>;
-
-// State
-let cart = JSON.parse(localStorage.getItem('citrob_cart') || '[]');
-let activeCategory = 'todos';
-let maxPrice = 500000;
-let sortMode = 'default';
-let searchQuery = '';
-
-// Cart
-function toggleCart() {
-  document.getElementById('cartSidebar').classList.toggle('open');
-  document.getElementById('cartOverlay').classList.toggle('open');
-}
-
-function addToCart(id, name, price, img) {
-  const existing = cart.find(i => i.id === id);
-  if (existing) existing.qty++;
-  else cart.push({ id, name, price, img, qty: 1 });
-  saveCart(); renderCart(); updateBadge();
-  const badge = document.querySelector(`[data-cart-id="${id}"]`);
-  if (badge) { badge.textContent = 'En el carro ✓'; badge.disabled = true; setTimeout(() => { badge.textContent = 'Agregar'; badge.disabled = false; }, 1500); }
-}
-
-function removeFromCart(id) {
-  cart = cart.filter(i => i.id !== id);
-  saveCart(); renderCart(); updateBadge();
-}
-
-function saveCart() { localStorage.setItem('citrob_cart', JSON.stringify(cart)); }
-
-function updateBadge() {
-  const total = cart.reduce((s, i) => s + i.qty, 0);
-  const badges = document.querySelectorAll('#cartBadge');
-  badges.forEach(b => { b.textContent = total; b.classList.toggle('d-none', total === 0); });
-}
-
-function renderCart() {
-  const container = document.getElementById('cartItems');
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  document.getElementById('cartCount').textContent = `(${cart.reduce((s,i)=>s+i.qty,0)})`;
-  document.getElementById('cartTotal').textContent = '$' + total.toLocaleString('es-CL');
-  if (!cart.length) { container.innerHTML = '<div class="text-center text-muted py-5"><span class="material-icons" style="font-size:48px;">shopping_bag</span><p class="mt-2">Carrito vacío</p></div>'; return; }
-  container.innerHTML = cart.map(item => `
-    <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-2" style="border:1px solid #f1f1f1;">
-      <img src="${item.img || ''}" alt="" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#f9f9f9;" onerror="this.src=''">
-      <div class="flex-grow-1">
-        <div style="font-size:13px;font-weight:600;">${item.name}</div>
-        <div style="font-size:13px;color:var(--primary);">$${(item.price * item.qty).toLocaleString('es-CL')}</div>
-        <div style="font-size:12px;color:#9ca3af;">x${item.qty} unidades</div>
-      </div>
-      <button class="btn btn-sm border-0 text-danger" onclick="removeFromCart(${item.id})"><span class="material-icons" style="font-size:18px;">delete</span></button>
-    </div>`).join('');
-}
-
-function checkout() { alert('Funcionalidad de pago próximamente.'); }
-
-// Render products
-function renderProducts() {
-  let items = [...ALL_PRODUCTS];
-  if (activeCategory !== 'todos') items = items.filter(p => p.category === activeCategory);
-  if (searchQuery) items = items.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.description||'').toLowerCase().includes(searchQuery.toLowerCase()));
-  items = items.filter(p => +p.price <= maxPrice);
-  if (sortMode === 'price_asc') items.sort((a,b) => +a.price - +b.price);
-  else if (sortMode === 'price_desc') items.sort((a,b) => +b.price - +a.price);
-  else if (sortMode === 'name') items.sort((a,b) => a.name.localeCompare(b.name));
-
-  document.getElementById('resultsInfo').textContent = `${items.length} productos`;
-  document.getElementById('noResults').classList.toggle('d-none', items.length > 0);
-  document.getElementById('productsGrid').innerHTML = items.map(p => {
-    const badge = p.badge ? `<span class="product-badge" style="background:rgba(0,0,0,.08); color:#374151;">${p.badge}</span>` : '';
-    const stars = Array.from({length:5},(_,i) => `<span class="material-icons" style="font-size:13px;color:${i<Math.round(+p.rating)?'#facc15':'#e5e7eb'};">star</span>`).join('');
-    return `<div class="col-6 col-md-4 col-xl-3 fade-in">
-      <div class="product-card h-100 position-relative">
-        ${badge}
-        <img src="${p.image_url||''}" class="card-img-top" alt="${p.name}" style="height:160px;padding:1rem;object-fit:contain;background:#fafafa;" onerror="this.src='';this.style.background='linear-gradient(135deg,#f8f8f8,#eee)'">
-        <div class="p-3">
-          <p class="text-muted mb-1" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">${p.type||''}</p>
-          <h6 class="fw-700 line-clamp-2 mb-2">${p.name}</h6>
-          <div class="d-flex align-items-center gap-1 mb-2">${stars}<span style="font-size:12px;color:#9ca3af;">(${p.reviews||0})</span></div>
-          <div class="d-flex align-items-center justify-content-between mt-2">
-            <span class="fw-800" style="font-size:1rem;color:var(--primary);">$${(+p.price).toLocaleString('es-CL')}</span>
-            <button class="btn btn-sm btn-store rounded-pill px-3" style="font-size:12px;" data-cart-id="${p.id}" onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\'")}',${p.price},'${p.image_url||''}')">Agregar</button>
-          </div>
-          <div class="mt-1" style="font-size:11px;color:#9ca3af;">Stock: ${p.stock||0}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// Events
-document.querySelectorAll('.cat-link').forEach(a => a.addEventListener('click', e => {
-  e.preventDefault(); activeCategory = a.dataset.cat;
-  document.querySelectorAll('.cat-link').forEach(x => x.classList.toggle('active', x.dataset.cat === activeCategory));
-  renderProducts();
+// Data from PHP — array de productos de la BD
+const products = <?= $this->products ?>.map(p => ({
+    ...p,
+    price: +p.price,
+    rating: +p.rating,
+    reviews: +p.reviews,
+    // image_url ya viene como /img/products/{id}.jpg
+    image: p.image_url || '',
+    category: p.category_slug || 'componentes',
 }));
 
-const priceSlider = document.getElementById('maxPrice');
-if (priceSlider) priceSlider.addEventListener('input', () => {
-  maxPrice = +priceSlider.value;
-  document.getElementById('maxPriceLabel').textContent = '$' + maxPrice.toLocaleString('es-CL');
-  renderProducts();
+// Categorías con icono — idéntico al shop.html
+const categories = [
+    { id:"todos", name:"Todos los Productos", icon:"apps", count: products.length },
+    <?php foreach ($categories as $cat):
+        if ($cat['slug'] === 'todos') continue;
+        $icon = $catIcons[$cat['slug']] ?? 'category';
+    ?>
+    { id:"<?= esc($cat['slug']) ?>", name:"<?= esc($cat['name']) ?>", icon:"<?= $icon ?>", count: <?= (int)$cat['count'] ?> },
+    <?php endforeach; ?>
+];
+// Si la BD tiene categorías con slug, filtramos correctamente
+categories.forEach(c => {
+    if (c.id !== 'todos') c.count = products.filter(p => p.category === c.id).length;
 });
+categories[0].count = products.length;
 
-document.getElementById('sortSelect')?.addEventListener('change', e => { sortMode = e.target.value; renderProducts(); });
-document.getElementById('sortSelectMobile')?.addEventListener('change', e => { sortMode = e.target.value; renderProducts(); });
-document.getElementById('catSelectMobile')?.addEventListener('change', e => { activeCategory = e.target.value; renderProducts(); });
+let currentCategory = "todos", currentSort = "recommended", maxPrice = 100000, cart = [];
 
-let searchTimer;
-function handleSearch(val) { clearTimeout(searchTimer); searchTimer = setTimeout(() => { searchQuery = val; renderProducts(); }, 300); }
-document.getElementById('searchInput')?.addEventListener('input', e => handleSearch(e.target.value));
-document.getElementById('searchInputMobile')?.addEventListener('input', e => handleSearch(e.target.value));
+function renderCategories() {
+    const html = categories.map(c => `
+        <li><a href="#" onclick="event.preventDefault();setCategory('${c.id}')" class="cat-link ${currentCategory===c.id?'active':''}">
+            <span class="d-flex align-items-center gap-2"><span class="material-icons" style="font-size:16px;">${c.icon}</span>${c.name}</span>
+            <span class="cat-count">${c.count}</span>
+        </a></li>
+    `).join('');
+    document.getElementById('categoryList').innerHTML = html;
+    document.getElementById('mobileCategoryList').innerHTML = html;
+}
 
-// Init
+function renderProducts() {
+    let filtered = currentCategory === "todos" ? [...products] : products.filter(p => p.category === currentCategory);
+    filtered = filtered.filter(p => p.price <= maxPrice);
+    const search = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+    if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || (p.type||'').toLowerCase().includes(search));
+    switch(currentSort) {
+        case 'price-asc':  filtered.sort((a,b) => a.price - b.price); break;
+        case 'price-desc': filtered.sort((a,b) => b.price - a.price); break;
+        case 'name':       filtered.sort((a,b) => a.name.localeCompare(b.name)); break;
+    }
+
+    const grid  = document.getElementById('productGrid');
+    const empty = document.getElementById('emptyState');
+    document.getElementById('productCount').textContent = `${filtered.length} producto${filtered.length!==1?'s':''}`;
+
+    if (!filtered.length) { grid.innerHTML = ''; empty.classList.remove('d-none'); return; }
+    empty.classList.add('d-none');
+
+    grid.innerHTML = filtered.map(p => {
+        const inCart = cart.find(c => c.id === p.id);
+        const badge  = p.badge ? `<span class="product-badge ${getBadgeClass(p.badge_color || p.badgeColor)}">${p.badge}</span>` : '';
+        return `
+        <div class="col-6 col-lg-4 fade-in">
+            <div class="product-card h-100 d-flex flex-column">
+                <div class="position-relative overflow-hidden">
+                    <img alt="${p.name}" class="card-img-top" src="${p.image}" loading="lazy"
+                         onerror="this.src='https://placehold.co/300x300/f8f8f8/ccc?text=Producto'"/>
+                    ${badge}
+                </div>
+                <div class="p-3 d-flex flex-column flex-grow-1">
+                    <p class="text-muted text-uppercase mb-1" style="font-size:10px;letter-spacing:1px;">${p.type||''}</p>
+                    <h6 class="fw-semibold small mb-3 line-clamp-2 lh-sm">${p.name}</h6>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold fs-5">$${p.price.toLocaleString('es-CL')}</span>
+                            <div class="d-flex align-items-center gap-0">${renderStars(p.rating)}<span class="text-muted ms-1" style="font-size:10px;">(${p.reviews||0})</span></div>
+                        </div>
+                        <button onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.image}')"
+                                class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-1 ${inCart?'btn-success':'btn-store'}">
+                            <span class="material-icons" style="font-size:16px;">${inCart?'check':'add_shopping_cart'}</span>
+                            ${inCart?'Agregado ✓':'Agregar al Carro'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function getBadgeClass(color) {
+    return {
+        green:   "bg-success bg-opacity-10 text-success",
+        red:     "bg-danger bg-opacity-10 text-danger",
+        blue:    "bg-primary bg-opacity-10 text-primary",
+        purple:  "bg-purple bg-opacity-10 text-purple-emphasis",
+        primary: "text-white"
+    }[color] || "bg-secondary bg-opacity-10 text-secondary";
+}
+
+function renderStars(r) {
+    let h = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(r))  h += '<span class="material-icons star-filled">star</span>';
+        else if (i - .5 <= r)    h += '<span class="material-icons star-filled">star_half</span>';
+        else                     h += '<span class="material-icons star-empty">star</span>';
+    }
+    return h;
+}
+
+function setCategory(id) {
+    currentCategory = id;
+    document.getElementById('categoryTitle').textContent = categories.find(c => c.id === id)?.name || '';
+    renderCategories();
+    renderProducts();
+}
+
+function sortProducts(v)    { currentSort = v; renderProducts(); }
+function filterProducts()   { renderProducts(); }
+function filterByPrice(v)   {
+    maxPrice = parseInt(v);
+    const l = `Hasta: $${maxPrice.toLocaleString('es-CL')}`;
+    const e = document.getElementById('priceLabel');
+    const m = document.getElementById('mobilePriceLabel');
+    if (e) e.textContent = l;
+    if (m) m.textContent = l;
+    renderProducts();
+}
+
+// Cart functions
+function addToCart(id, name, price, img) {
+    const e = cart.find(x => x.id === id);
+    if (e) e.qty++;
+    else cart.push({ id, name, price, img, qty: 1 });
+    updateCart(); renderProducts();
+}
+function removeFromCart(id) { cart = cart.filter(x => x.id !== id); updateCart(); renderProducts(); }
+function changeQty(id, d) {
+    const i = cart.find(x => x.id === id);
+    if (i) { i.qty += d; if (i.qty <= 0) { removeFromCart(id); return; } }
+    updateCart();
+}
+
+function updateCart() {
+    const b     = document.getElementById('cartBadge');
+    const total = cart.reduce((s, c) => s + c.qty, 0);
+    const price = cart.reduce((s, c) => s + c.price * c.qty, 0);
+    if (total > 0) { b.textContent = total; b.classList.remove('d-none'); }
+    else b.classList.add('d-none');
+
+    const ci = document.getElementById('cartItems');
+    const cf = document.getElementById('cartFooter');
+    if (!cart.length) {
+        ci.innerHTML = '<div class="text-center py-5"><span class="material-icons text-muted" style="font-size:48px;">remove_shopping_cart</span><p class="text-muted fw-medium mt-2">Tu carrito está vacío</p><p class="text-muted small">Agrega algunos productos para comenzar</p></div>';
+        cf.classList.add('d-none');
+        return;
+    }
+    cf.classList.remove('d-none');
+    document.getElementById('cartTotal').textContent = `$${price.toLocaleString('es-CL')}`;
+    ci.innerHTML = cart.map(i => `
+        <div class="d-flex gap-3 py-3 border-bottom">
+            <div class="flex-shrink-0 bg-light rounded-2 p-2" style="width:72px;height:72px;">
+                <img src="${i.img}" alt="${i.name}" class="w-100 h-100" style="object-fit:contain;" onerror="this.src='https://placehold.co/72/f8f8f8/ccc?text=?'"/>
+            </div>
+            <div class="flex-grow-1 min-w-0">
+                <h6 class="fw-semibold small line-clamp-2 mb-1">${i.name}</h6>
+                <p class="fw-bold text-store small mb-2">$${i.price.toLocaleString('es-CL')}</p>
+                <div class="d-flex align-items-center gap-2">
+                    <button onclick="changeQty(${i.id},-1)" class="btn btn-outline-secondary btn-sm px-2 py-0" style="line-height:1.6;">−</button>
+                    <span class="small fw-medium" style="width:20px;text-align:center;">${i.qty}</span>
+                    <button onclick="changeQty(${i.id},1)" class="btn btn-outline-secondary btn-sm px-2 py-0" style="line-height:1.6;">+</button>
+                    <button onclick="removeFromCart(${i.id})" class="btn btn-sm text-muted ms-auto p-0"><span class="material-icons" style="font-size:18px;">delete_outline</span></button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleCart() {
+    const s = document.getElementById('cartSidebar');
+    const o = document.getElementById('cartOverlay');
+    const open = s.classList.contains('open');
+    s.classList.toggle('open'); o.classList.toggle('open');
+    document.body.style.overflow = open ? '' : 'hidden';
+}
+
+renderCategories();
 renderProducts();
-renderCart();
-updateBadge();
 </script>
