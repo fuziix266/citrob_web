@@ -5,7 +5,7 @@ $this->layout('web/layout/layout');
 <nav class="navbar navbar-light sticky-top bg-white" id="mainNav">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/">
-      <img src="/citrob_back/public/imgs/logo.jpeg" alt="CITROB" onerror="this.style.background='#f27f0d'">
+      <img src="/imgs/logo.jpeg" alt="CITROB" onerror="this.style.background='#f27f0d'">
       <span>CITROB</span>
     </a>
     <div class="d-none d-md-flex align-items-center gap-4">
@@ -43,7 +43,7 @@ $this->layout('web/layout/layout');
 
 <!-- HERO -->
 <section class="container mt-4 mb-5">
-  <div class="hero-section" style="background-image:url('/citrob_back/public/imgs/hero.jpg')">
+  <div class="hero-section" style="background-image:url('/imgs/hero.jpg')">
     <div class="hero-overlay"></div>
     <div class="position-relative p-4 p-md-5 text-white d-flex flex-column justify-content-end" style="min-height:480px;">
       <span class="text-warning fw-600 mb-2 hero-fade" style="font-size:14px;letter-spacing:2px;">CITROB · QUINTERO, CHILE</span>
@@ -91,7 +91,7 @@ $this->layout('web/layout/layout');
       <div class="program-card <?= $cls ?> animate-on-scroll h-100">
         <?php if ($cls === 'featured'): ?><div class="popular-ribbon">Popular</div><?php endif; ?>
         <div class="card-img-wrap" style="height:160px;">
-          <img src="/citrob_back/public/<?= $img ?>" alt="<?= $title ?>" class="w-100 h-100" style="object-fit:cover;"
+          <img src="/<?= $img ?>" alt="<?= $title ?>" class="w-100 h-100" style="object-fit:cover;"
                onerror="this.parentElement.style.background='linear-gradient(135deg,#f27f0d,#e85d22)';this.style.display='none'">
         </div>
         <div class="p-3">
