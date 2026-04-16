@@ -18,8 +18,8 @@ $catIcons = [
 <header class="bg-white border-bottom sticky-top" style="z-index:1040;">
     <div class="container-xl">
         <div class="d-flex justify-content-between align-items-center py-3">
-            <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
-                <img alt="CITROB Logo" src="/imgs/logo.jpeg" style="height:40px;width:40px;border-radius:8px;object-fit:cover;" onerror="this.style.background='#E85D22'">
+            <a href="<?= $this->url('home') ?>" class="d-flex align-items-center gap-2 text-decoration-none">
+                <img alt="CITROB Logo" src="<?= $this->basePath('imgs/logo.jpeg') ?>" style="height:40px;width:40px;border-radius:8px;object-fit:cover;" onerror="this.style.background='#E85D22'">
                 <span class="fs-5 fw-bold"><span class="text-store">CITROB</span> <span class="text-secondary fw-medium">Shop</span></span>
             </a>
             <div class="flex-grow-1 mx-4 d-none d-md-block" style="max-width:600px;">
@@ -29,7 +29,7 @@ $catIcons = [
                 </div>
             </div>
             <div class="d-flex align-items-center gap-4">
-                <a class="text-muted text-decoration-none d-flex flex-column align-items-center" href="/">
+                <a class="text-muted text-decoration-none d-flex flex-column align-items-center" href="<?= $this->url('home') ?>">
                     <span class="material-icons" style="font-size:22px;">school</span>
                     <span style="font-size:10px;" class="mt-1 fw-medium">Escuela</span>
                 </a>
@@ -157,7 +157,7 @@ $catIcons = [
     <div class="container-xl py-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
             <div class="d-flex align-items-center gap-2">
-                <img alt="CITROB" src="/imgs/logo.jpeg" style="height:32px;width:32px;border-radius:8px;object-fit:cover;opacity:.8;">
+                <img alt="CITROB" src="<?= $this->basePath('imgs/logo.jpeg') ?>" style="height:32px;width:32px;border-radius:8px;object-fit:cover;opacity:.8;">
                 <span class="fw-semibold">CITROB Robótica</span>
             </div>
             <div class="text-muted small text-center text-md-end">© <?= date('Y') ?> CITROB. Todos los derechos reservados. Componentes de robótica para educación y makers.</div>
@@ -173,7 +173,7 @@ const products = <?= $this->products ?>.map(p => ({
     rating: +p.rating,
     reviews: +p.reviews,
     // image_url ya viene como /img/products/{id}.jpg
-    image: p.image_url || '',
+    image: p.image_url ? '<?= $this->basePath('') ?>' + p.image_url : '',
     category: p.category_slug || 'componentes',
 }));
 

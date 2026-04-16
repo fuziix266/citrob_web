@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !/citrob/public/
+RewriteRule ^(.*)$ /citrob/public/$1 [R=301,L]
