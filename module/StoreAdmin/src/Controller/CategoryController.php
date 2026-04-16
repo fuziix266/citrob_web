@@ -22,11 +22,27 @@ class CategoryController extends AbstractActionController
 
             if ($action === 'delete') {
                 $id = (int)($d['id'] ?? 0);
-                $count = (int)$this->db->queryOne('SELECT COUNT(*) AS c FROM products WHERE category_id=?', [$id])['c'];
-                if ($id > 1 && $count === 0) $this->db->execute('DELETE FROM categories WHERE id=?', [$id]);
+                if ($id > 1) {
+                    // Mover productos a categoría "Todos" (id=1) antes de borrar la categoría
+                    $this->db->execute('UPDATE products SET category_id=1 WHERE category_id=?', [$id]);
+                    $this->db->execute('DELETE FROM categories WHERE id=?', [$id]);
+                }
             } else {
                 $id   = (int)($d['id'] ?? 0);
-                $data = ['name' => trim($d['name'] ?? ''), 'slug' => trim($d['slug'] ?? ''), 'icon' => trim($d['icon'] ?? 'category'), 'sort_order' => (int)($d['sort_order'] ?? 0), 'active' => (int)($d['active'] ?? 1)];
+                $name = trim($d['name'] ?? '');
+                $slug = trim($d['slug'] ?? '');
+                if (!$slug) {
+                    $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
+                }
+                
+                $data = [
+                    'name' => $name, 
+                    'slug' => $slug, 
+                    'icon' => trim($d['icon'] ?? 'category'), 
+                    'sort_order' => (int)($d['sort_order'] ?? 0), 
+                    'active' => (int)($d['active'] ?? 1)
+                ];
+                
                 if ($id) {
                     $this->db->execute('UPDATE categories SET name=?,slug=?,icon=?,sort_order=?,active=? WHERE id=?', [...array_values($data), $id]);
                 } else {

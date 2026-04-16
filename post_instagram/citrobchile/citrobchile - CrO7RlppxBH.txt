@@ -1,0 +1,1 @@
+Ruedas mecanum, mejorando el movimiento de los robots, aprendemos a vectorizar las fuerzas de roce para entender el movimiento en la programación #nuevosingenieros #aprendamosjuntos #engineering #nuevosdesafios.

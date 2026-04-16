@@ -28,7 +28,8 @@ class AdminAuthService
         if ($admin && password_verify($password, $admin['password_hash'])) {
             $this->db->execute('UPDATE admins SET last_login = NOW() WHERE id = ?', [$admin['id']]);
             $_SESSION[self::SESSION_KEY] = $admin['id'];
-            $_SESSION['admin_name']      = $admin['name'];
+            $_SESSION['admin_name']      = $admin['name'] ?? $admin['username'];
+            $_SESSION['is_admin']        = (bool)$admin['is_admin'];
             return true;
         }
         return false;
@@ -46,6 +47,12 @@ class AdminAuthService
         return isset($_SESSION[self::SESSION_KEY]) && (int)$_SESSION[self::SESSION_KEY] > 0;
     }
 
+    public function isAdmin(): bool
+    {
+        $this->startSession();
+        return $this->isLoggedIn() && !empty($_SESSION['is_admin']);
+    }
+
     public function requireLogin(string $loginUrl): void
     {
         if (!$this->isLoggedIn()) {
@@ -58,7 +65,7 @@ class AdminAuthService
     {
         if (!$this->isLoggedIn()) return null;
         return $this->db->queryOne(
-            'SELECT id, username, name, email FROM admins WHERE id = ? AND active = 1',
+            'SELECT id, username, name, email, is_admin FROM admins WHERE id = ? AND active = 1',
             [$_SESSION[self::SESSION_KEY]]
         );
     }

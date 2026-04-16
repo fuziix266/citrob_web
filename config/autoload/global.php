@@ -13,5 +13,10 @@
  */
 
 return [
-    // ...
+    // Registrar ViewJsonStrategy globalmente para que JsonModel funcione en cualquier módulo
+    'view_manager' => [
+        'strategies' => [
+            'ViewJsonStrategy',
+        ],
+    ],
 ];

@@ -1,0 +1,1 @@
+El balance es una de las cosas más difíciles de programar, pensando que la pelota es una variable bastante aleatoria al momento de ser lanzada para mantener corta estabilidad, se podría utilizar tal vez un control PID, mediante programación con matrices de traslación. Impresionante a lo que vamos llegando.

@@ -38,10 +38,34 @@ $catIcons = [
                     <span style="font-size:10px;" class="mt-1 fw-medium">Carro</span>
                     <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none" style="background:var(--primary); font-size:10px;">0</span>
                 </button>
-                <a href="/admin/login" class="text-muted text-decoration-none d-flex flex-column align-items-center" title="Panel de Administración">
-                    <span class="material-icons" style="font-size:22px;">admin_panel_settings</span>
-                    <span style="font-size:10px;" class="mt-1 fw-medium">Admin</span>
-                </a>
+                <?php if (!isset($this->isLoggedIn) || !$this->isLoggedIn): ?>
+                    <a href="<?= $this->url('admin-login') ?>" class="text-muted text-decoration-none d-flex flex-column align-items-center" title="Iniciar Sesión">
+                        <span class="material-icons" style="font-size:22px;">account_circle</span>
+                        <span style="font-size:10px;" class="mt-1 fw-medium">Ingresar</span>
+                    </a>
+                <?php else: ?>
+                    <div class="dropdown">
+                        <a href="#" class="text-muted text-decoration-none d-flex flex-column align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="material-icons" style="font-size:22px; color: var(--primary);">person</span>
+                            <span style="font-size:10px;" class="mt-1 fw-medium text-store">Mi Cuenta</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:12px; border:1px solid var(--border-c); padding:8px;">
+                            <?php if (isset($this->isAdmin) && $this->isAdmin): ?>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 rounded" href="<?= $this->url('admin') ?>">
+                                    <span class="material-icons" style="font-size:18px;">admin_panel_settings</span> Administración
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <?php endif; ?>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 text-danger rounded" href="<?= $this->url('admin-logout') ?>">
+                                    <span class="material-icons" style="font-size:18px;">logout</span> Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         <!-- Mobile search -->
@@ -145,8 +169,8 @@ $catIcons = [
             <span class="fw-bold fs-5">Total:</span>
             <span id="cartTotal" class="fw-bold fs-4 text-store">$0</span>
         </div>
-        <button class="btn btn-store w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-            <span class="material-icons" style="font-size:16px;">lock</span> Proceder al Pago
+        <button onclick="checkoutCart()" class="btn btn-store w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+            <span class="material-icons" id="checkoutIcon" style="font-size:16px;">lock</span> <span id="checkoutText">Proceder al Pago</span>
         </button>
         <p class="text-center text-muted small mt-2">Envío a todo Chile 🇨🇱</p>
     </div>
@@ -194,6 +218,7 @@ categories.forEach(c => {
 categories[0].count = products.length;
 
 let currentCategory = "todos", currentSort = "recommended", maxPrice = 100000, cart = [];
+const isLoggedIn = <?= $this->isLoggedIn ? 'true' : 'false' ?>;
 
 function renderCategories() {
     const html = categories.map(c => `
@@ -294,18 +319,105 @@ function filterByPrice(v)   {
     renderProducts();
 }
 
-// Cart functions
-function addToCart(id, name, price, img) {
-    const e = cart.find(x => x.id === id);
-    if (e) e.qty++;
-    else cart.push({ id, name, price, img, qty: 1 });
-    updateCart(); renderProducts();
+// Cart functions via API
+async function apiCall(action, payload = null) {
+    const opts = { method: payload ? 'POST' : 'GET', headers: {'Content-Type':'application/json'} };
+    if (payload) opts.body = JSON.stringify(payload);
+    const basePath = '<?= $this->basePath('') ?>';
+    const res = await fetch(basePath + '/shop/api/cart' + (action ? '/'+action : ''), opts);
+    return res.json();
 }
-function removeFromCart(id) { cart = cart.filter(x => x.id !== id); updateCart(); renderProducts(); }
-function changeQty(id, d) {
+
+function processCartResponse(data) {
+    if (data.success && data.items) {
+        cart = data.items.map(i => {
+            const prod = products.find(p => p.id === i.product_id);
+            return {
+                id: parseInt(i.product_id),
+                name: i.title,
+                price: parseInt(i.price),
+                qty: parseInt(i.quantity),
+                img: prod ? prod.image : 'https://placehold.co/300/f8f8f8/ccc?text=Producto'
+            };
+        });
+        updateCart();
+        renderProducts();
+    }
+}
+
+async function loadCart() {
+    if (!isLoggedIn) return;
+    try {
+        const data = await apiCall('');
+        processCartResponse(data);
+    } catch(e) { console.error('Error load cart', e); }
+}
+
+async function addToCart(id, name, price, img) {
+    if (!isLoggedIn) {
+        window.location.href = '<?= $this->url('admin-login') ?>';
+        return;
+    }
+    // Optimistic UI can be done, but let's wait for the server
+    const data = await apiCall('add', {product_id: parseInt(id), quantity: 1});
+    processCartResponse(data);
+}
+
+async function removeFromCart(id) {
+    if (!isLoggedIn) return;
+    const data = await apiCall('remove', {product_id: parseInt(id)});
+    processCartResponse(data);
+}
+
+async function changeQty(id, d) {
+    if (!isLoggedIn) return;
     const i = cart.find(x => x.id === id);
-    if (i) { i.qty += d; if (i.qty <= 0) { removeFromCart(id); return; } }
-    updateCart();
+    if (!i) return;
+    if (i.qty + d <= 0) {
+        removeFromCart(id);
+        return;
+    }
+    // API adds to existing by passing quantity. Since we want to set qty, wait...
+    // The PHP addAction does: newQuantity = existing.quantity + quantity;
+    // So passing d as quantity will work!
+    const data = await apiCall('add', {product_id: parseInt(id), quantity: d});
+    processCartResponse(data);
+}
+
+async function checkoutCart() {
+    if (!isLoggedIn) {
+        window.location.href = '<?= $this->url('admin-login') ?>';
+        return;
+    }
+    
+    if (cart.length === 0) return;
+
+    document.getElementById('checkoutIcon').textContent = 'hourglass_bottom';
+    document.getElementById('checkoutText').textContent = 'Procesando...';
+    
+    try {
+        const data = await apiCall('checkout', {});
+        if (data.success && data.hash_id) {
+            const orderUrl = `https://citrob.store/orden/${data.hash_id}`;
+            const waText = `Hola, acabo de realizar un pedido en CITROB Store. Puedes ver mi orden aquí: ${orderUrl}`;
+            const waUrl = `https://wa.me/56981533101?text=${encodeURIComponent(waText)}`;
+            
+            // Vaciar carrito visualmente
+            cart = [];
+            updateCart();
+            renderProducts();
+            
+            // Redirigir a WhatsApp
+            window.open(waUrl, '_blank');
+        } else {
+            alert(data.error || 'Ocurrió un error al procesar el pago.');
+        }
+    } catch (e) {
+        alert('Error al conectar con el servidor.');
+    } finally {
+        document.getElementById('checkoutIcon').textContent = 'lock';
+        document.getElementById('checkoutText').textContent = 'Proceder al Pago';
+    }
 }
 
 function updateCart() {
@@ -353,4 +465,5 @@ function toggleCart() {
 
 renderCategories();
 renderProducts();
+loadCart();
 </script>

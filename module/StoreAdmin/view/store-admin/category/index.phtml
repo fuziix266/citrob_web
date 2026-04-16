@@ -28,8 +28,8 @@
                 <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="editCat(<?= htmlspecialchars(json_encode($c),ENT_QUOTES) ?>)">
                   <span class="material-icons" style="font-size:14px;">edit</span>
                 </button>
-                <?php if ($c['id'] > 1 && $c['product_count'] == 0): ?>
-                <form method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar?')">
+                <?php if ($c['id'] > 1): ?>
+                <form method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta categoría? Sus productos pasarán a la categoría Todos')">
                   <input type="hidden" name="_action" value="delete">
                   <input type="hidden" name="id" value="<?= $c['id'] ?>">
                   <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">

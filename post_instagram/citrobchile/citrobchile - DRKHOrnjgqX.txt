@@ -1,0 +1,1 @@
+Misión donde deben mover el maker (el objeto que diseñaron) debe ser movido desde la zona de carga ( zona verde donde pueden usar las manos) y mover la figura hasta el área circular con el robot.

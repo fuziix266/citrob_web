@@ -25,6 +25,14 @@ return [
                     'defaults' => ['controller' => Controller\AuthController::class, 'action' => 'logout'],
                 ],
             ],
+            // Registro
+            'admin-register' => [
+                'type'    => Literal::class,
+                'options' => [
+                    'route'    => '/registro',
+                    'defaults' => ['controller' => Controller\AuthController::class, 'action' => 'register'],
+                ],
+            ],
             // Dashboard
             'admin' => [
                 'type'    => Literal::class,
@@ -92,8 +100,10 @@ return [
 
     'view_manager' => [
         'template_map' => [
+            'layout/layout'                => __DIR__ . '/../view/layout/layout.phtml',
             'store-admin/layout/layout'    => __DIR__ . '/../view/store-admin/layout/layout.phtml',
             'store-admin/auth/login'       => __DIR__ . '/../view/store-admin/auth/login.phtml',
+            'store-admin/auth/register'    => __DIR__ . '/../view/store-admin/auth/register.phtml',
             'store-admin/dashboard/index'  => __DIR__ . '/../view/store-admin/dashboard/index.phtml',
             'store-admin/product/index'    => __DIR__ . '/../view/store-admin/product/index.phtml',
             'store-admin/product/edit'     => __DIR__ . '/../view/store-admin/product/edit.phtml',

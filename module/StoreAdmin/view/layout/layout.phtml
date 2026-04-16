@@ -1,0 +1,9 @@
+<?php 
+if(isset($this->exception)) { 
+    echo $this->exception->getMessage(); 
+    echo "\n"; 
+    echo $this->exception->getTraceAsString(); 
+} else { 
+    echo $this->content; 
+} 
+?>

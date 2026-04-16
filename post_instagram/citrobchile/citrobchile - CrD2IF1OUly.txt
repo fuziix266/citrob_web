@@ -1,0 +1,1 @@
+Disposición de los props en starter, se movieron los cubos grandes amarillos al área manual para el 2023.

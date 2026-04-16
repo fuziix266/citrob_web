@@ -1,0 +1,1 @@
+Nos mandaron a fabricar el molino del Moulin Rouge en tiempo récord. A pesar de no ser un robot aplicamos conocimientos de robótica para realizar un mecanismo de 5 motores dc engranados a un plato central controlado por Bluetooth con 5 velocidades distintas. Todo a 12 volt. Llegamos!!

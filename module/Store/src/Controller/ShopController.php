@@ -13,7 +13,8 @@ class ShopController extends AbstractActionController
 {
     public function __construct(
         private ProductService $products,
-        private CategoryService $categories
+        private CategoryService $categories,
+        private \StoreAdmin\Service\AdminAuthService $auth
     ) {}
 
     public function indexAction(): ViewModel
@@ -24,6 +25,8 @@ class ShopController extends AbstractActionController
         $vm = new ViewModel([
             'products'   => json_encode($products, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG),
             'categories' => json_encode($categories, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG),
+            'isLoggedIn' => $this->auth->isLoggedIn(),
+            'isAdmin'    => $this->auth->isAdmin(),
         ]);
         $vm->setTemplate('store/shop/index');
         return $vm;
