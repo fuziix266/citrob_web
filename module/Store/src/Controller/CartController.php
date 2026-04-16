@@ -51,7 +51,7 @@ class CartController extends AbstractActionController
 
         $cartId = $this->getCartId($userId);
         $items  = $this->db->query('
-            SELECT ci.id, ci.product_id, ci.quantity,
+            SELECT ci.id, ci.product_id, ci.qty AS quantity,
                    p.name AS title,
                    p.price,
                    p.image_url
@@ -98,7 +98,7 @@ class CartController extends AbstractActionController
 
         $cartId   = $this->getCartId($userId);
         $existing = $this->db->queryOne(
-            'SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?',
+            'SELECT id, qty AS quantity FROM cart_items WHERE cart_id = ? AND product_id = ?',
             [$cartId, $productId]
         );
 
@@ -108,14 +108,14 @@ class CartController extends AbstractActionController
                 $this->db->execute('DELETE FROM cart_items WHERE id = ?', [$existing['id']]);
             } else {
                 $this->db->execute(
-                    'UPDATE cart_items SET quantity = ? WHERE id = ?',
+                    'UPDATE cart_items SET qty = ? WHERE id = ?',
                     [$newQty, $existing['id']]
                 );
             }
         } else {
             if ($quantity > 0) {
                 $this->db->execute(
-                    'INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)',
+                    'INSERT INTO cart_items (cart_id, product_id, qty) VALUES (?, ?, ?)',
                     [$cartId, $productId, $quantity]
                 );
             }
@@ -196,7 +196,7 @@ class CartController extends AbstractActionController
         $cartId = $this->getCartId($userId);
 
         $items = $this->db->query('
-            SELECT ci.product_id, ci.quantity AS qty,
+            SELECT ci.product_id, ci.qty,
                    p.price AS unit_price,
                    p.name  AS product_name
             FROM cart_items ci
