@@ -20,14 +20,14 @@ class OrderPublicController extends AbstractActionController
             return $this->notFoundAction();
         }
 
-        $order = $this->db->fetchOne('SELECT * FROM orders WHERE hash_id = ?', [$hash]);
+        $order = $this->db->queryOne('SELECT * FROM orders WHERE hash_id = ?', [$hash]);
 
         if (!$order) {
             return $this->notFoundAction();
         }
 
-        $items = $this->db->fetchAll('
-            SELECT oi.*, p.title, p.sku, p.image_url 
+        $items = $this->db->query('
+            SELECT oi.*, p.name, p.image_url 
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             WHERE oi.order_id = ?
