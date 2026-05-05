@@ -39,6 +39,7 @@ class OrderPublicController extends AbstractActionController
         ]);
         
         $vm->setTemplate('store/order/public');
+        $vm->setTerminal(true); // standalone HTML, sin layout wrapper
         return $vm;
     }
 }
