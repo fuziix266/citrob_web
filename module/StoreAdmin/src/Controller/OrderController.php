@@ -27,7 +27,7 @@ class OrderController extends AbstractActionController
             if (isset($d['order_id'], $d['new_status']) && in_array($d['new_status'], $valid, true)) {
                 $orderId = (int)$d['order_id'];
                 $newStatus = $d['new_status'];
-                $oldOrder = $this->db->fetchOne('SELECT status FROM orders WHERE id = ?', [$orderId]);
+                $oldOrder = $this->db->queryOne('SELECT status FROM orders WHERE id = ?', [$orderId]);
                 
                 if ($oldOrder) {
                     $oldStatus = $oldOrder['status'];
@@ -36,9 +36,9 @@ class OrderController extends AbstractActionController
                     // Si pasa de pendiente a procesando/enviado/entregado, restamos stock
                     $approvedStatuses = ['processing', 'shipped', 'delivered'];
                     if ($oldStatus === 'pending' && in_array($newStatus, $approvedStatuses, true)) {
-                        $items = $this->db->fetchAll('SELECT product_id, quantity FROM order_items WHERE order_id = ?', [$orderId]);
+                        $items = $this->db->query('SELECT product_id, qty FROM order_items WHERE order_id = ?', [$orderId]);
                         foreach ($items as $item) {
-                            $this->db->execute('UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id = ?', [(int)$item['quantity'], (int)$item['product_id']]);
+                            $this->db->execute('UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id = ?', [(int)$item['qty'], (int)$item['product_id']]);
                         }
                     }
                 }
@@ -55,8 +55,27 @@ class OrderController extends AbstractActionController
         $counts = $this->db->query('SELECT status, COUNT(*) AS cnt FROM orders GROUP BY status');
         $statusCounts = array_column($counts, 'cnt', 'status');
 
+        // Cargar items de cada orden para el detalle
+        $orderItems = [];
+        $orderIds = array_column($orders, 'id');
+        if (!empty($orderIds)) {
+            $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+            $items = $this->db->query(
+                "SELECT oi.*, p.image_url 
+                 FROM order_items oi 
+                 LEFT JOIN products p ON oi.product_id = p.id 
+                 WHERE oi.order_id IN ($placeholders) 
+                 ORDER BY oi.id",
+                $orderIds
+            );
+            foreach ($items as $item) {
+                $orderItems[(int)$item['order_id']][] = $item;
+            }
+        }
+
         return new ViewModel([
             'orders'       => $orders,
+            'orderItems'   => $orderItems,
             'total'        => $total,
             'pages'        => max(1,(int)ceil($total/$limit)),
             'page'         => $page,

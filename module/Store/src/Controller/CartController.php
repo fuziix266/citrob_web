@@ -219,7 +219,7 @@ class CartController extends AbstractActionController
             'SELECT id, username, name, email FROM admins WHERE id = ?',
             [$userId]
         );
-        $customerName = $admin['name']  ?? $admin['username'] ?? 'Cliente';
+        $customerName = $admin['username'] ?? 'Cliente';
         $email        = $admin['email'] ?? '';
         $hashId       = bin2hex(random_bytes(16));
 
