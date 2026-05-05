@@ -224,12 +224,13 @@ class CartController extends AbstractActionController
         $hashId       = bin2hex(random_bytes(16));
 
         // Insertar en orders con el esquema real
+        // customer_id = NULL porque el admin no está en la tabla customers (FK constraint)
         $this->db->execute(
             'INSERT INTO orders
                 (customer_id, customer_name, email, phone, address, city, total, status, hash_id, notes)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
-                $userId,
+                null,           // customer_id NULL (evita FK violation con tabla customers)
                 $customerName,
                 $email,
                 'N/A',          // phone

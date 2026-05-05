@@ -18,10 +18,9 @@ $base = $this->basePath('');
       <a href="#programas" class="text-decoration-none text-dark" style="font-size:14px;font-weight:500;">Programas</a>
       <a href="#proceso" class="text-decoration-none text-dark" style="font-size:14px;font-weight:500;">¿Cómo funciona?</a>
       <a href="#galeria" class="text-decoration-none text-dark" style="font-size:14px;font-weight:500;">Galería</a>
-      <a href="#contacto" class="text-decoration-none text-dark" style="font-size:14px;font-weight:500;">Contacto</a>
-      <a href="<?= $this->url('shop') ?>" class="text-decoration-none text-dark fw-bold" style="font-size:14px;">🛍️ Tienda</a>
-      <a href="#contacto" class="btn rounded-pill px-4 fw-bold" style="font-size:13px;background:#f27f0d;color:#fff;box-shadow:0 4px 14px rgba(242,127,13,.35);">
-        Inscríbete ahora
+      <a href="#CTA" class="text-decoration-none text-dark" style="font-size:14px;font-weight:500;">Contacto</a>
+      <a href="<?= $this->url('shop') ?>" class="btn rounded-pill px-4 fw-bold" style="font-size:13px;background:#f27f0d;color:#fff;box-shadow:0 4px 14px rgba(242,127,13,.35);">
+        Ir a la tienda
       </a>
     </div>
     <button class="navbar-toggler d-md-none border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
@@ -373,13 +372,13 @@ $base = $this->basePath('');
 <section style="background:linear-gradient(90deg,#f27f0d,#e85d22);padding:4rem 0;">
   <div class="container text-center text-white">
     <h2 style="font-size:clamp(1.8rem,3vw,2.5rem);font-weight:900;margin-bottom:1rem;">¿Listo para comenzar?</h2>
-    <p style="font-size:1.1rem;opacity:.85;max-width:560px;margin:0 auto 2rem;">La primera clase es <strong>totalmente gratuita</strong>. Sin letra pequeña, sin compromiso. Solo ven y descubre.</p>
+    <p style="font-size:1.1rem;opacity:.85;max-width:560px;margin:0 auto 2rem;">La primera clase de taller de robótica es <strong>totalmente gratuita</strong>. Sin letra pequeña, sin compromiso. Solo ven y descubre.</p>
     <div class="d-flex gap-3 justify-content-center flex-wrap">
-      <a href="#contacto" class="btn rounded-pill px-5 py-3 fw-bold" style="background:#fff;color:#f27f0d;font-size:1rem;box-shadow:0 6px 20px rgba(0,0,0,.15);">
-        Agenda tu clase gratis
-      </a>
-      <a href="tel:+56900000000" class="btn rounded-pill px-4 py-3 fw-bold" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);font-size:1rem;">
-        📞 Llamar ahora
+      <a href="https://wa.me/56981533101?text=Hola%2C%20quiero%20agendar%20mi%20clase%20gratis%20de%20rob%C3%B3tica" target="_blank" rel="noopener" class="btn rounded-pill px-5 py-3 fw-bold d-inline-flex align-items-center gap-2" style="background:#25D366;color:#fff;font-size:1rem;box-shadow:0 6px 20px rgba(0,0,0,.15);border:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926a7.9 7.9 0 0 0 1.06 3.956L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.589-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.325-.336-.445-.342-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.808 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.13 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
+        </svg>
+        Escríbenos por WhatsApp
       </a>
     </div>
   </div>
@@ -413,53 +412,11 @@ $base = $this->basePath('');
       </div>
       <!-- Formulario -->
       <div class="col-lg-6">
-        <div class="rounded-3 p-4 p-md-5" style="background:#fff;box-shadow:0 4px 30px rgba(0,0,0,.06);border:1px solid #f0f0f0;">
-          <h5 style="font-weight:800;color:#0f172a;margin-bottom:1.5rem;">Envíanos un mensaje</h5>
-          <form>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label" style="font-size:13px;font-weight:600;color:#374151;">Nombre completo</label>
-                <input type="text" class="form-control" placeholder="Juan García" style="border-radius:10px;border:1px solid #e5e7eb;font-size:14px;padding:.7rem 1rem;">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" style="font-size:13px;font-weight:600;color:#374151;">Email</label>
-                <input type="email" class="form-control" placeholder="juan@email.com" style="border-radius:10px;border:1px solid #e5e7eb;font-size:14px;padding:.7rem 1rem;">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" style="font-size:13px;font-weight:600;color:#374151;">Teléfono</label>
-                <input type="tel" class="form-control" placeholder="+56 9 XXXX XXXX" style="border-radius:10px;border:1px solid #e5e7eb;font-size:14px;padding:.7rem 1rem;">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" style="font-size:13px;font-weight:600;color:#374151;">Edad del estudiante</label>
-                <select class="form-select" style="border-radius:10px;border:1px solid #e5e7eb;font-size:14px;padding:.7rem 1rem;">
-                  <option value="">Seleccionar...</option>
-                  <option>6 - 10 años (Básica)</option>
-                  <option>11 - 14 años (Intermedia)</option>
-                  <option>15 - 17 años (Avanzada)</option>
-                </select>
-              </div>
-              <div class="col-12">
-                <label class="form-label" style="font-size:13px;font-weight:600;color:#374151;">Programa de interés</label>
-                <select class="form-select" style="border-radius:10px;border:1px solid #e5e7eb;font-size:14px;padding:.7rem 1rem;">
-                  <option>Robótica Básica</option>
-                  <option>Robótica Avanzada</option>
-                  <option>Impresión 3D</option>
-                  <option>Programación Web</option>
-                  <option>No estoy seguro/a aún</option>
-                </select>
-              </div>
-              <div class="col-12">
-                <label class="form-label" style="font-size:13px;font-weight:600;color:#374151;">Mensaje (opcional)</label>
-                <textarea class="form-control" rows="3" placeholder="¿Tienes alguna pregunta específica?" style="border-radius:10px;border:1px solid #e5e7eb;font-size:14px;padding:.7rem 1rem;resize:none;"></textarea>
-              </div>
-              <div class="col-12">
-                <button type="submit" class="btn rounded-pill w-100 py-3 fw-bold" style="background:#f27f0d;color:#fff;font-size:1rem;box-shadow:0 6px 20px rgba(242,127,13,.35);">
-                  Enviar mensaje ✉️
-                </button>
-                <p class="text-center text-muted mt-2" style="font-size:11px;">Respondemos en menos de 24 horas hábiles</p>
-              </div>
-            </div>
-          </form>
+        <div class="rounded-3 overflow-hidden" style="background:#fff;box-shadow:0 4px 30px rgba(0,0,0,.06);border:1px solid #f0f0f0;">
+          <div class="p-4 pb-0">
+            <h5 style="font-weight:800;color:#0f172a;margin-bottom:1rem;">Encuéntranos</h5>
+          </div>
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3316.5!2d-71.5323671!3d-32.7745505!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689c06393684585%3A0xfd9fafcfd8871ef8!2sBarros%20Luco%20860%2C%202491188%20Quintero%2C%20Valpara%C3%ADso!5e0!3m2!1ses!2scl!4v1700000000000!5m2!1ses!2scl" width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
       </div>
     </div>
