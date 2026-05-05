@@ -3,6 +3,7 @@
 
 # Imágenes de productos (se generan en el servidor, no van al repo)
 /public/img/products/
+/public/img/productos/
 
 # Caché de configuración de Laminas
 /data/cache/*.php
