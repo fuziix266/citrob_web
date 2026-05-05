@@ -1,3 +1,0 @@
-Les compartimos medidas máximas y mínimas del maker que deben construir en starter (con cualquier material que no afecte la pista)
-Además de las medidas máximas extendidas del robot.
-No exceder los 2.5 kg.

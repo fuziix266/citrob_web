@@ -32,6 +32,23 @@
 Thumbs.db
 desktop.ini
 
-# Archivos temporales de migración
-migrate_export.sql
-fix_hash.php
+# ===== Archivos que NO deben subirse al deploy =====
+
+# Contenido de Instagram / redes sociales (pesado, no es código)
+/post_instagram/
+
+# Scripts temporales de migración y debug
+/migrations/
+/scripts/
+check_*.php
+fix_*.php
+index.html
+
+# Scripts de diagnóstico en public
+/public/diagnostico_*.php
+/public/describe_*.php
+/public/migracion_*.php
+/public/fix_*.php
+
+# Dump de base de datos
+*.sql

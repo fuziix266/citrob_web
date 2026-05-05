@@ -1,1 +1,0 @@
-Este es un robot categoría Explorer que viajó a Pekín el año 2023, al WRC (world robotic conference), al encuentro mas grande de robótica en el mundo. Este contaba con un sistema de lanzamiento por energía elástica el cual era impulsado por servomotores y una caja de engranajes, tú puedes ser el próximo si te lo propones. #steam #robotica #makex #educacion #competition

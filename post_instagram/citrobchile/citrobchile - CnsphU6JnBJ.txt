@@ -1,1 +1,0 @@
-Revisando la máquina de control numérico computacional. Está máquina trabaja con metales de uso industrial la cual puede remover material en todos los ejes (x-y-z), esto la hace muy avanzada y depende su potencial de la programación del operario.
