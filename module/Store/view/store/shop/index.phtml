@@ -196,9 +196,9 @@ const products = <?= $this->products ?>.map(p => ({
     price: +p.price,
     rating: +p.rating,
     reviews: +p.reviews,
-    // image_url ya viene como /img/products/{id}.jpg
+    // image_url ya viene como /img/products/{id}.jpg o /img/productos/{id}.jpg
     image: p.image_url ? '<?= $this->basePath('') ?>' + p.image_url : '',
-    category: p.category_slug || 'componentes',
+    category: p.category || 'componentes',
 }));
 
 // Categorías con icono — idéntico al shop.html
