@@ -99,8 +99,8 @@ $catIcons = [
                     <h6 class="fw-bold mb-3">Categorías</h6>
                     <ul class="list-unstyled mb-4" id="mobileCategoryList"></ul>
                     <h6 class="fw-bold mb-3">Rango de Precio</h6>
-                    <div class="d-flex justify-content-between text-muted small mb-2"><span>$0</span><span>$100.000+</span></div>
-                    <input type="range" class="form-range" min="0" max="100000" value="100000" oninput="filterByPrice(this.value)"/>
+                    <div class="d-flex justify-content-between text-muted small mb-2"><span>$0</span><span id="mobileMaxPriceText"></span></div>
+                    <input type="range" class="form-range" min="0" max="100000" value="100000" id="mobilePriceRange" oninput="filterByPrice(this.value)"/>
                     <p id="mobilePriceLabel" class="text-store small fw-medium mt-2">Hasta: $100.000</p>
                     <button class="btn btn-store w-100 mt-3" data-bs-dismiss="offcanvas">Aplicar Filtros</button>
                 </div>
@@ -112,8 +112,8 @@ $catIcons = [
                     <h6 class="fw-bold mb-3 pb-2 border-bottom">Categorías</h6>
                     <ul class="list-unstyled mb-0" id="categoryList"></ul>
                     <h6 class="fw-bold mt-4 mb-3 pb-2 border-bottom">Rango de Precio</h6>
-                    <div class="d-flex justify-content-between text-muted small mb-2"><span>$0</span><span>$100.000+</span></div>
-                    <input type="range" class="form-range" min="0" max="100000" value="100000" oninput="filterByPrice(this.value)"/>
+                    <div class="d-flex justify-content-between text-muted small mb-2"><span>$0</span><span id="desktopMaxPriceText"></span></div>
+                    <input type="range" class="form-range" min="0" max="100000" value="100000" id="desktopPriceRange" oninput="filterByPrice(this.value)"/>
                     <p id="priceLabel" class="text-store small fw-medium mt-2">Hasta: $100.000</p>
                 </div>
             </div>
@@ -217,9 +217,31 @@ categories.forEach(c => {
 });
 categories[0].count = products.length;
 
-let currentCategory = "todos", currentSort = "recommended", maxPrice = 100000, cart = [];
+let currentCategory = "todos", currentSort = "recommended", cart = [];
 const isLoggedIn = <?= $this->isLoggedIn ? 'true' : 'false' ?>;
 
+// Dynamic max price
+const calculatedMaxPrice = products.length ? Math.max(...products.map(p => p.price), 100000) : 100000;
+let maxPrice = calculatedMaxPrice;
+
+// Update price sliders
+document.addEventListener("DOMContentLoaded", () => {
+    const formatPrice = `$${calculatedMaxPrice.toLocaleString('es-CL')}+`;
+    const labelText = `Hasta: $${calculatedMaxPrice.toLocaleString('es-CL')}`;
+    
+    document.getElementById('mobileMaxPriceText').textContent = formatPrice;
+    document.getElementById('desktopMaxPriceText').textContent = formatPrice;
+    
+    const rMobile = document.getElementById('mobilePriceRange');
+    const rDesktop = document.getElementById('desktopPriceRange');
+    if(rMobile) { rMobile.max = calculatedMaxPrice; rMobile.value = calculatedMaxPrice; }
+    if(rDesktop) { rDesktop.max = calculatedMaxPrice; rDesktop.value = calculatedMaxPrice; }
+    
+    const e = document.getElementById('priceLabel');
+    const m = document.getElementById('mobilePriceLabel');
+    if (e) e.textContent = labelText;
+    if (m) m.textContent = labelText;
+});
 function renderCategories() {
     const html = categories.map(c => `
         <li><a href="#" onclick="event.preventDefault();setCategory('${c.id}')" class="cat-link ${currentCategory===c.id?'active':''}">
