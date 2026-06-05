@@ -45,4 +45,4 @@ ENV DB_PASSWORD=admin@123
 EXPOSE 80
 
 # Limpiar config cache y arrancar Apache
-CMD ["sh", "-c", "rm -f data/cache/module-config-cache.*.php && apache2-foreground"]
+CMD ["sh", "-c", "mkdir -p public/img/productos && chown -R www-data:www-data public/img/productos && chmod -R 755 public/img/productos && rm -f data/cache/module-config-cache.*.php && apache2-foreground"]
